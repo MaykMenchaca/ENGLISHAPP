@@ -1,18 +1,34 @@
 :root {
-  --bg: #10161b;
-  --surface: #17202a;
-  --surface-2: #1d2833;
-  --ink: #e7edef;
-  --soft: #a9b8c2;
-  --faint: #6f808c;
-  --accent: #6bb3de;
-  --accent-deep: #9bceea;
-  --good: #6bbe96;
-  --good-bg: #16301f;
-  --bad: #e08a52;
-  --bad-bg: #33241a;
-  --line: #263039;
-  --radius: 10px;
+  --bg: oklch(0.155 0.014 250);
+  --surface: oklch(0.185 0.016 250);
+  --surface-2: oklch(0.225 0.017 250);
+  --ink: oklch(0.955 0.006 250);
+  --soft: oklch(0.79 0.017 250);
+  --faint: oklch(0.635 0.018 250);
+  --line: oklch(0.27 0.016 250);
+  --line-soft: oklch(0.23 0.016 250);
+
+  --accent: oklch(0.78 0.105 232);
+  --accent-deep: oklch(0.88 0.075 232);
+  --accent-ink: oklch(0.16 0.03 232);
+
+  /* "correcto" en verde, "incorrecto" en ámbar (no rojo) */
+  --good: oklch(0.8 0.11 155);
+  --good-deep: oklch(0.89 0.08 155);
+  --good-bg: oklch(0.24 0.045 155);
+  --good-ink: oklch(0.15 0.03 155);
+
+  --bad: oklch(0.8 0.1 85);
+  --bad-deep: oklch(0.89 0.075 85);
+  --bad-bg: oklch(0.24 0.045 85);
+  --bad-ink: oklch(0.15 0.025 85);
+
+  --font-body: 'Public Sans', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --pill: 999px;
 }
 
 * {
@@ -24,7 +40,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -33,7 +49,7 @@ body {
 .shell {
   max-width: 640px;
   margin: 0 auto;
-  padding: 24px 18px 64px;
+  padding: 28px 18px 64px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -47,98 +63,44 @@ body {
 
 /* ---------- encabezado ---------- */
 .masthead .eyebrow {
-  margin: 0 0 8px;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
 }
 .masthead h1 {
-  margin: 0 0 10px;
-  font-size: 28px;
-  line-height: 1.15;
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   text-wrap: balance;
 }
 .lede {
   margin: 0;
   color: var(--soft);
-  font-size: 15px;
-}
-
-/* ---------- selector de bloques ---------- */
-.lesson-grid {
-  display: grid;
-  gap: 12px;
-}
-.lesson-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 140ms ease, transform 140ms ease;
-}
-.lesson-card:hover:not(:disabled) {
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
-.lesson-card:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.lesson-card:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.lesson-num {
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.lesson-title {
-  font-size: 18px;
-  font-weight: 600;
-}
-.lesson-meta {
-  font-size: 13px;
-  color: var(--faint);
-  font-variant-numeric: tabular-nums;
-}
-.bar {
-  display: block;
-  height: 5px;
-  background: var(--surface-2);
-  border-radius: 3px;
-  overflow: hidden;
-  margin: 4px 0 2px;
-}
-.bar-fill {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transition: width 250ms ease;
+  font-size: 15.5px;
+  line-height: 1.6;
 }
 
 /* ---------- interruptor Opciones / Escribir ---------- */
 .switch-row {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 16px;
+  gap: 9px;
+  padding: 16px 18px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
 .switch-label {
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--faint);
 }
@@ -148,23 +110,24 @@ body {
   gap: 3px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--pill);
   align-self: flex-start;
 }
 .switch button {
-  padding: 8px 16px;
+  padding: 8px 18px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--pill);
   background: transparent;
   color: var(--soft);
   font: inherit;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
 }
 .switch button.active {
   background: var(--accent);
-  color: #08131b;
+  color: var(--accent-ink);
 }
 .switch button:focus-visible {
   outline: 2px solid var(--accent);
@@ -174,49 +137,104 @@ body {
   margin: 0;
   font-size: 13px;
   color: var(--faint);
+  line-height: 1.5;
 }
 
-/* ---------- opciones múltiples ---------- */
-.options {
+/* ---------- rejilla de bloques ---------- */
+.lesson-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 480px) {
+  .lesson-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lesson-card {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-}
-.option {
-  padding: 14px 16px;
-  background: var(--bg);
+  gap: 5px;
+  padding: 18px 18px 16px;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink);
+  border-radius: var(--radius);
+  color: inherit;
   font: inherit;
-  font-size: 16px;
   text-align: left;
   cursor: pointer;
-  transition: border-color 120ms ease, background 120ms ease;
+  transition: border-color 140ms ease, transform 140ms ease, background 140ms ease;
 }
-.option:hover:not(:disabled) {
+.lesson-card:hover:not(:disabled) {
   border-color: var(--accent);
+  background: var(--surface-2);
+  transform: translateY(-1px);
 }
-.option:focus-visible {
+.lesson-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.option:disabled {
-  cursor: default;
+.lesson-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
-.option.correct {
-  border-color: var(--good);
-  background: var(--good-bg);
-  color: var(--good);
+/* Orden visual: número de bloque, recuento de palabras, título, barra, stats.
+   El DOM (fijo en el JSX) trae: número, título, recuento, barra, stats — cinco
+   <span> hermanos, así que reordenar por :first-of-type no sirve (eso mira la
+   etiqueta, no la clase, y las cinco son <span>). Se ancla por posición real
+   con :nth-child en su lugar. */
+.lesson-card > :nth-child(1) {
+  order: 1;
+}
+.lesson-card > :nth-child(3) {
+  order: 2;
+  margin-bottom: 2px;
+}
+.lesson-card > :nth-child(2) {
+  order: 3;
+}
+.lesson-card > :nth-child(4) {
+  order: 4;
+}
+.lesson-card > :nth-child(5) {
+  order: 5;
+}
+
+.lesson-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.lesson-title {
+  font-size: 19px;
   font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 2px 0 6px;
 }
-.option.wrong {
-  border-color: var(--bad);
-  background: var(--bad-bg);
-  color: var(--bad);
+.lesson-meta {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
 }
-.option.dim {
-  opacity: 0.45;
+.bar {
+  display: block;
+  height: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--pill);
+  overflow: hidden;
+  margin: 2px 0 6px;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--pill);
+  transition: width 250ms ease;
 }
 
 /* ---------- tarjeta de ejercicio ---------- */
@@ -224,37 +242,45 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
   color: var(--faint);
   font-variant-numeric: tabular-nums;
 }
 .mode-chip {
-  padding: 3px 9px;
+  padding: 4px 11px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--pill);
   color: var(--accent);
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 22px 20px;
 }
 .prompt-label {
   margin: 0 0 12px;
-  font-size: 13px;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--faint);
 }
 .term {
   margin: 0 0 18px;
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 33px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: var(--accent-deep);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .sentence {
   margin: 0 0 10px;
@@ -263,7 +289,7 @@ body {
 }
 .prompt-hint {
   margin: 0 0 18px;
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--faint);
 }
 .word-chips {
@@ -273,10 +299,12 @@ body {
   margin: 0 0 16px;
 }
 .chip {
-  padding: 4px 10px;
+  padding: 5px 12px;
   background: var(--surface-2);
-  border-radius: 999px;
-  font-size: 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--pill);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
   color: var(--accent-deep);
 }
 
@@ -287,13 +315,13 @@ form {
 }
 .input {
   width: 100%;
-  padding: 13px 14px;
+  padding: 13px 15px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--ink);
   font: inherit;
-  font-size: 16px; /* 16px evita el zoom automático en iOS */
+  font-size: 16px; /* evita el zoom automático en iOS */
 }
 .input:focus {
   outline: none;
@@ -308,13 +336,14 @@ form {
 }
 
 .btn {
-  padding: 13px 18px;
-  border-radius: 8px;
+  padding: 13px 20px;
+  border-radius: var(--pill);
   border: 1px solid transparent;
   font: inherit;
+  font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 140ms ease, border-color 140ms ease;
+  transition: background 140ms ease, border-color 140ms ease, opacity 140ms ease;
 }
 .btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -322,7 +351,7 @@ form {
 }
 .btn.primary {
   background: var(--accent);
-  color: #08131b;
+  color: var(--accent-ink);
 }
 .btn.primary:hover:not(:disabled) {
   background: var(--accent-deep);
@@ -343,14 +372,88 @@ form {
   color: var(--accent);
 }
 
-/* ---------- feedback ---------- */
+/* ---------- opciones múltiples: A, B, C, D ---------- */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  counter-reset: opt;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15.5px;
+  text-align: left;
+  cursor: pointer;
+  counter-increment: opt;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.option::before {
+  content: counter(opt, upper-alpha);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--faint);
+}
+.option:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.option:disabled {
+  cursor: default;
+}
+.option.correct {
+  border-color: var(--good);
+  background: var(--good-bg);
+  color: var(--good);
+  font-weight: 600;
+}
+.option.correct::before {
+  background: var(--good);
+  border-color: var(--good);
+  color: var(--good-ink);
+}
+.option.wrong {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.option.wrong::before {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--bad-ink);
+}
+.option.dim {
+  opacity: 0.45;
+}
+
+/* ---------- feedback: veredicto como etiqueta corta ---------- */
 .feedback {
   padding: 16px 18px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
+  align-items: flex-start;
 }
 .feedback.ok {
   background: var(--good-bg);
@@ -362,38 +465,46 @@ form {
 }
 .feedback-verdict {
   margin: 0;
+  padding: 4px 12px;
+  border-radius: var(--pill);
+  font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 15px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .feedback.ok .feedback-verdict {
-  color: var(--good);
+  background: var(--good);
+  color: var(--good-ink);
 }
 .feedback.bad .feedback-verdict {
-  color: var(--bad);
+  background: var(--bad);
+  color: var(--bad-ink);
 }
 .feedback-text {
   margin: 0;
   font-size: 15px;
+  line-height: 1.55;
   color: var(--ink);
 }
 .feedback-corrected {
   margin: 0;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 6px;
+  padding: 11px 13px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: var(--radius-sm);
   font-size: 15px;
   line-height: 1.55;
+  width: 100%;
 }
 .feedback-label {
   display: block;
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--faint);
   margin-bottom: 4px;
-}
-.feedback .btn {
-  align-self: flex-start;
 }
 
 .error {
@@ -405,6 +516,8 @@ form {
 .done-card h2 {
   margin: 0 0 10px;
   font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 .done-card {
   display: flex;
@@ -413,9 +526,10 @@ form {
   align-items: flex-start;
 }
 code {
+  font-family: var(--font-mono);
   background: var(--surface-2);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 7px;
+  border-radius: 5px;
   font-size: 13px;
 }
 

@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tutor de inglés · pantallas</title>
+<style>
+/* ============================================================
+   ESTILOS DE LA APP — esto es lo que hay que rediseñar.
+   Es una copia exacta de frontend/src/styles.css
+   ============================================================ */
+:root {
+  --bg: oklch(0.155 0.014 250);
+  --surface: oklch(0.185 0.016 250);
+  --surface-2: oklch(0.225 0.017 250);
+  --ink: oklch(0.955 0.006 250);
+  --soft: oklch(0.79 0.017 250);
+  --faint: oklch(0.635 0.018 250);
+  --line: oklch(0.27 0.016 250);
+  --line-soft: oklch(0.23 0.016 250);
+
+  --accent: oklch(0.78 0.105 232);
+  --accent-deep: oklch(0.88 0.075 232);
+  --accent-ink: oklch(0.16 0.03 232);
+
+  /* "correcto" en verde, "incorrecto" en ámbar (no rojo) */
+  --good: oklch(0.8 0.11 155);
+  --good-deep: oklch(0.89 0.08 155);
+  --good-bg: oklch(0.24 0.045 155);
+  --good-ink: oklch(0.15 0.03 155);
+
+  --bad: oklch(0.8 0.1 85);
+  --bad-deep: oklch(0.89 0.075 85);
+  --bad-bg: oklch(0.24 0.045 85);
+  --bad-ink: oklch(0.15 0.025 85);
+
+  --font-body: 'Public Sans', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 18px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- encabezado ---------- */
+.masthead .eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.masthead h1 {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.lede {
+  margin: 0;
+  color: var(--soft);
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+/* ---------- interruptor Opciones / Escribir ---------- */
+.switch-row {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.switch-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--pill);
+  align-self: flex-start;
+}
+.switch button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--pill);
+  background: transparent;
+  color: var(--soft);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+.switch button.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.switch button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.switch-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--faint);
+  line-height: 1.5;
+}
+
+/* ---------- rejilla de bloques ---------- */
+.lesson-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 480px) {
+  .lesson-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px 18px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, transform 140ms ease, background 140ms ease;
+}
+.lesson-card:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+.lesson-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.lesson-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* Orden visual: número de bloque, recuento de palabras, título, barra, stats.
+   El DOM (fijo en el JSX) trae: número, título, recuento, barra, stats — cinco
+   <span> hermanos, así que reordenar por :first-of-type no sirve (eso mira la
+   etiqueta, no la clase, y las cinco son <span>). Se ancla por posición real
+   con :nth-child en su lugar. */
+.lesson-card > :nth-child(1) {
+  order: 1;
+}
+.lesson-card > :nth-child(3) {
+  order: 2;
+  margin-bottom: 2px;
+}
+.lesson-card > :nth-child(2) {
+  order: 3;
+}
+.lesson-card > :nth-child(4) {
+  order: 4;
+}
+.lesson-card > :nth-child(5) {
+  order: 5;
+}
+
+.lesson-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.lesson-title {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 2px 0 6px;
+}
+.lesson-meta {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  display: block;
+  height: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--pill);
+  overflow: hidden;
+  margin: 2px 0 6px;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--pill);
+  transition: width 250ms ease;
+}
+
+/* ---------- tarjeta de ejercicio ---------- */
+.progress-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.mode-chip {
+  padding: 4px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--pill);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+}
+.prompt-label {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.term {
+  margin: 0 0 18px;
+  font-size: 33px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--accent-deep);
+  line-height: 1.15;
+}
+.sentence {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.6;
+}
+.prompt-hint {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  color: var(--faint);
+}
+.word-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 16px;
+}
+.chip {
+  padding: 5px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--pill);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--accent-deep);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.input {
+  width: 100%;
+  padding: 13px 15px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* evita el zoom automático en iOS */
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.input:disabled {
+  opacity: 0.65;
+}
+.textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.btn {
+  padding: 13px 20px;
+  border-radius: var(--pill);
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, opacity 140ms ease;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn.primary:hover:not(:disabled) {
+  background: var(--accent-deep);
+}
+.btn.primary:disabled {
+  background: var(--surface-2);
+  color: var(--faint);
+  cursor: not-allowed;
+}
+.btn.ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--soft);
+  align-self: flex-start;
+}
+.btn.ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- opciones múltiples: A, B, C, D ---------- */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  counter-reset: opt;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15.5px;
+  text-align: left;
+  cursor: pointer;
+  counter-increment: opt;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.option::before {
+  content: counter(opt, upper-alpha);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--faint);
+}
+.option:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.option:disabled {
+  cursor: default;
+}
+.option.correct {
+  border-color: var(--good);
+  background: var(--good-bg);
+  color: var(--good);
+  font-weight: 600;
+}
+.option.correct::before {
+  background: var(--good);
+  border-color: var(--good);
+  color: var(--good-ink);
+}
+.option.wrong {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.option.wrong::before {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--bad-ink);
+}
+.option.dim {
+  opacity: 0.45;
+}
+
+/* ---------- feedback: veredicto como etiqueta corta ---------- */
+.feedback {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  align-items: flex-start;
+}
+.feedback.ok {
+  background: var(--good-bg);
+  border-color: var(--good);
+}
+.feedback.bad {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+}
+.feedback-verdict {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: var(--pill);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.feedback.ok .feedback-verdict {
+  background: var(--good);
+  color: var(--good-ink);
+}
+.feedback.bad .feedback-verdict {
+  background: var(--bad);
+  color: var(--bad-ink);
+}
+.feedback-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.feedback-corrected {
+  margin: 0;
+  padding: 11px 13px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  line-height: 1.55;
+  width: 100%;
+}
+.feedback-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 4px;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--bad);
+  font-size: 14px;
+}
+.error-card h2,
+.done-card h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.done-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+code {
+  font-family: var(--font-mono);
+  background: var(--surface-2);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+
+/* ============================================================
+   ANDAMIO DEL CATÁLOGO — solo para ver las pantallas juntas.
+   No forma parte de la app; se puede ignorar al rediseñar.
+   ============================================================ */
+.mk-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.mk-intro {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+  margin-bottom: 40px;
+}
+.mk-intro h1 { font-size: 30px; margin: 0 0 10px; }
+.mk-intro p { color: var(--soft); margin: 0 0 8px; max-width: 62ch; }
+.mk-intro code { font-size: 13px; }
+.mk-screen { margin-bottom: 48px; }
+.mk-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+.mk-num {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--accent);
+}
+.mk-title { font-size: 19px; margin: 0; }
+.mk-note { color: var(--faint); font-size: 14px; margin: 0 0 14px; max-width: 70ch; }
+.mk-frame {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.mk-frame .shell { padding-top: 22px; padding-bottom: 26px; }
+</style>
+</head>
+<body>
+<div class="mk-page">
+
+  <div class="mk-intro">
+    <h1>Tutor de inglés — todas las pantallas</h1>
+    <p>Catálogo de la interfaz completa de la app, con el CSS real y las mismas clases
+    que usan los componentes de React.</p>
+    <p><strong>Para rediseñar:</strong> cambia el primer bloque de estilos (el que dice
+    ESTILOS DE LA APP). Conserva los nombres de clase — así los cambios se pueden portar
+    de vuelta a React directamente. La paleta vive en las variables de <code>:root</code>.</p>
+    <p>El segundo bloque de estilos es solo el andamio para ver las pantallas juntas y no
+    forma parte de la app.</p>
+  </div>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">01</span>
+      <h2 class="mk-title">Selector de bloque</h2>
+    </div>
+    <p class="mk-note">Pantalla de inicio. El interruptor decide si las preguntas son de opción múltiple o de escribir.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <header class="masthead">
+    <p class="eyebrow">Tutor de inglés · TOEFL + Ingeniería Industrial</p>
+    <h1>Elige tu bloque</h1>
+    <p class="lede">Cada sesión son 5 palabras. De cada una te pregunto el significado y luego te pido completarla dentro de una oración. Te corrijo en español.</p>
+  </header>
+
+  <div class="switch-row">
+    <span class="switch-label">Cómo quieres responder</span>
+    <div class="switch" role="group" aria-label="Formato de respuesta">
+      <button type="button" class="active">Opciones</button>
+      <button type="button">Escribir</button>
+    </div>
+    <p class="switch-hint">Eliges entre 4 opciones. Respuesta inmediata, ideal para empezar.</p>
+  </div>
+
+  <div class="lesson-grid">
+    <button class="lesson-card">
+      <span class="lesson-num">Bloque 1</span>
+      <span class="lesson-title">Cimientos</span>
+      <span class="lesson-meta">30 palabras</span>
+      <span class="bar"><span class="bar-fill" style="width:40%"></span></span>
+      <span class="lesson-meta">12 vistas · 78% acierto</span>
+    </button>
+    <button class="lesson-card">
+      <span class="lesson-num">Bloque 2</span>
+      <span class="lesson-title">Procesos y calidad</span>
+      <span class="lesson-meta">30 palabras</span>
+      <span class="bar"><span class="bar-fill" style="width:0%"></span></span>
+      <span class="lesson-meta">0 vistas</span>
+    </button>
+    <button class="lesson-card">
+      <span class="lesson-num">Bloque 3</span>
+      <span class="lesson-title">Datos y conectores</span>
+      <span class="lesson-meta">30 palabras</span>
+      <span class="bar"><span class="bar-fill" style="width:0%"></span></span>
+      <span class="lesson-meta">0 vistas</span>
+    </button>
+    <button class="lesson-card">
+      <span class="lesson-num">Bloque 4</span>
+      <span class="lesson-title">Gestión y abstractos</span>
+      <span class="lesson-meta">30 palabras</span>
+      <span class="bar"><span class="bar-fill" style="width:0%"></span></span>
+      <span class="lesson-meta">0 vistas</span>
+    </button>
+  </div>
+</div>
+</main>
+    </div>
+  </section>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">02</span>
+      <h2 class="mk-title">Pregunta de significado · opciones</h2>
+    </div>
+    <p class="mk-note">Primer modo. Se muestra la palabra en inglés y cuatro significados posibles.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <div class="progress-line">
+    <span>Palabra 1 de 5</span>
+    <span class="mode-chip">Significado</span>
+  </div>
+  <div class="card">
+    <p class="prompt-label">¿Qué significa?</p>
+    <p class="term">bottleneck</p>
+    <div class="options">
+      <button type="button" class="option">Proveedor.</button>
+      <button type="button" class="option">Cuello de botella.</button>
+      <button type="button" class="option">Tiempo de entrega.</button>
+      <button type="button" class="option">Almacén.</button>
+    </div>
+  </div>
+</div>
+</main>
+    </div>
+  </section>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">03</span>
+      <h2 class="mk-title">Respuesta correcta</h2>
+    </div>
+    <p class="mk-note">La opción acertada se resalta, las demás se atenúan, y aparece el panel de feedback con el ejemplo.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <div class="progress-line">
+    <span>Palabra 1 de 5</span>
+    <span class="mode-chip">Significado</span>
+  </div>
+  <div class="card">
+    <p class="prompt-label">¿Qué significa?</p>
+    <p class="term">bottleneck</p>
+    <div class="options">
+      <button type="button" class="option dim" disabled>Proveedor.</button>
+      <button type="button" class="option correct" disabled>Cuello de botella.</button>
+      <button type="button" class="option dim" disabled>Tiempo de entrega.</button>
+      <button type="button" class="option dim" disabled>Almacén.</button>
+    </div>
+  </div>
+  <div class="feedback ok">
+    <p class="feedback-verdict">Correcto</p>
+    <p class="feedback-text">Correcto. «bottleneck» = Cuello de botella. Ejemplo: The packaging station is the bottleneck of the line.</p>
+    <button class="btn primary">Siguiente</button>
+  </div>
+</div>
+</main>
+    </div>
+  </section>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">04</span>
+      <h2 class="mk-title">Respuesta incorrecta</h2>
+    </div>
+    <p class="mk-note">La elección errónea se marca en rojo y la correcta en verde, para que la comparación sea inmediata.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <div class="progress-line">
+    <span>Palabra 2 de 5</span>
+    <span class="mode-chip">Completar</span>
+  </div>
+  <div class="card">
+    <p class="prompt-label">Completa la oración</p>
+    <p class="sentence">______ costs are 12% of the total budget.</p>
+    <div class="options">
+      <button type="button" class="option wrong" disabled>supplier</button>
+      <button type="button" class="option dim" disabled>delay</button>
+      <button type="button" class="option correct" disabled>logistics</button>
+      <button type="button" class="option dim" disabled>throughput</button>
+    </div>
+  </div>
+  <div class="feedback bad">
+    <p class="feedback-verdict">Todavía no</p>
+    <p class="feedback-text">La correcta era «logistics». Recuerda: logistics = Logística. Ejemplo: Logistics costs are 12% of the total budget.</p>
+    <button class="btn primary">Siguiente</button>
+  </div>
+</div>
+</main>
+    </div>
+  </section>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">05</span>
+      <h2 class="mk-title">Modo escribir</h2>
+    </div>
+    <p class="mk-note">Cuando el interruptor está en «Escribir», el usuario teclea y la IA evalúa aceptando paráfrasis.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <div class="progress-line">
+    <span>Palabra 3 de 5</span>
+    <span class="mode-chip">Completar</span>
+  </div>
+  <div class="card">
+    <p class="prompt-label">Completa la oración</p>
+    <p class="sentence">The ______ works in three shifts.</p>
+    <p class="prompt-hint">Pista: Almacén.</p>
+    <form>
+      <input class="input" value="warehouse" />
+      <button class="btn primary" type="button">Revisar</button>
+    </form>
+  </div>
+</div>
+</main>
+    </div>
+  </section>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">06</span>
+      <h2 class="mk-title">Práctica libre de escritura</h2>
+    </div>
+    <p class="mk-note">Al terminar las 5 palabras. La IA devuelve el texto corregido y explica los errores en español.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <div class="progress-line">
+    <span>Práctica libre</span>
+    <span class="mode-chip">Escritura</span>
+  </div>
+  <div class="card">
+    <p class="prompt-label">Escribe 2 o 3 frases en inglés usando estas palabras</p>
+    <p class="word-chips">
+      <span class="chip">ERP</span>
+      <span class="chip">muda</span>
+      <span class="chip">pull system</span>
+      <span class="chip">item master</span>
+      <span class="chip">overproduction</span>
+    </p>
+    <form>
+      <textarea class="input textarea" rows="4">Our plant use a pull system for reduce the overproduction.</textarea>
+      <button class="btn primary" type="button">Revisar mi texto</button>
+    </form>
+  </div>
+  <div class="feedback bad">
+    <p class="feedback-verdict">Todavía no</p>
+    <p class="feedback-corrected"><span class="feedback-label">Corregido</span>Our plant uses a pull system to reduce overproduction.</p>
+    <p class="feedback-text">1. «Our plant» es tercera persona singular, así que el verbo lleva «uses». 2. Para expresar propósito se usa «to + infinitivo», no «for».</p>
+    <button class="btn primary">Terminar sesión</button>
+  </div>
+</div>
+</main>
+    </div>
+  </section>
+
+  <section class="mk-screen">
+    <div class="mk-head">
+      <span class="mk-num">07</span>
+      <h2 class="mk-title">Fin de sesión y error</h2>
+    </div>
+    <p class="mk-note">Los dos estados finales: sesión completada, y qué se ve cuando la IA no responde.</p>
+    <div class="mk-frame">
+      <main class="shell">
+<div class="stack">
+  <div class="card done-card">
+    <h2>Sesión terminada</h2>
+    <p class="lede">Practicaste 5 palabras del bloque 1. Tu progreso quedó guardado.</p>
+    <button class="btn primary">Volver a los bloques</button>
+  </div>
+
+  <div class="card error-card">
+    <h2>No se pudo cargar</h2>
+    <p class="error">HTTP 429: cuota de la API agotada por hoy.</p>
+    <p class="lede">Revisa que el backend esté corriendo y que la base de datos tenga las palabras cargadas (<code>python api/seed.py</code>).</p>
+  </div>
+
+  <button class="btn ghost">Salir de la sesión</button>
+</div>
+</main>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
