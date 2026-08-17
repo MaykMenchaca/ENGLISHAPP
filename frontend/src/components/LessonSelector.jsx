@@ -5,7 +5,23 @@ const TITLES = {
   4: 'Gestión y abstractos',
 }
 
-export default function LessonSelector({ weeks, progress, onStart, loading, format, onFormat }) {
+const PROVIDER_LABELS = {
+  gemini: 'Gemini',
+  claude: 'Claude',
+  deepseek: 'DeepSeek',
+}
+
+export default function LessonSelector({
+  weeks,
+  progress,
+  onStart,
+  loading,
+  format,
+  onFormat,
+  providerOptions,
+  provider,
+  onProvider,
+}) {
   return (
     <div className="stack">
       <header className="masthead">
@@ -41,6 +57,30 @@ export default function LessonSelector({ weeks, progress, onStart, loading, form
             : 'Escribes tu respuesta y la IA te corrige en español. Cuesta más, enseña más.'}
         </p>
       </div>
+
+      {/* Solo aparece si hay más de un proveedor con clave configurada en el
+          servidor — con uno solo, elegir no tiene sentido. */}
+      {providerOptions.length > 1 && (
+        <div className="switch-row">
+          <span className="switch-label">Motor de IA para escribir</span>
+          <div className="switch" role="group" aria-label="Proveedor de IA">
+            {providerOptions.map((p) => (
+              <button
+                key={p}
+                type="button"
+                className={provider === p ? 'active' : ''}
+                onClick={() => onProvider(p)}
+              >
+                {PROVIDER_LABELS[p] || p}
+              </button>
+            ))}
+          </div>
+          <p className="switch-hint">
+            Solo se usa en modo «Escribir» y en la práctica libre. Si uno falla o se
+            queda sin cuota, cambia aquí sin perder tu sesión.
+          </p>
+        </div>
+      )}
 
       <div className="lesson-grid">
         {weeks.map((w) => {

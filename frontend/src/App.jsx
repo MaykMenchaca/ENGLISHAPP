@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { evaluate, freePractice, getLessons, getProgress } from './api.js'
+import { evaluate, freePractice, getLessons, getProgress, getProviders } from './api.js'
 import LessonSelector from './components/LessonSelector.jsx'
 import ExerciseCard from './components/ExerciseCard.jsx'
 import FreePractice from './components/FreePractice.jsx'
@@ -51,14 +51,34 @@ export default function App() {
     localStorage.setItem('tutor-format', next)
   }
 
+  // Motores de IA con clave configurada en el servidor. Vacío hasta que
+  // responda /api/providers; el switch no se pinta mientras tanto.
+  const [providerOptions, setProviderOptions] = useState([])
+  const [provider, setProvider] = useState(() => localStorage.getItem('tutor-provider'))
+
+  function changeProvider(next) {
+    setProvider(next)
+    localStorage.setItem('tutor-provider', next)
+  }
+
   useEffect(() => {
     let alive = true
     ;(async () => {
       try {
-        const [lessons, prog] = await Promise.all([getLessons(), getProgress()])
+        const [lessons, prog, providersRes] = await Promise.all([
+          getLessons(),
+          getProgress(),
+          getProviders(),
+        ])
         if (!alive) return
 
         setWeeks(lessons.weeks)
+        setProviderOptions(providersRes.options)
+        // Si lo guardado en localStorage ya no está disponible (o nunca eligió),
+        // cae en el proveedor por defecto del servidor.
+        setProvider((prev) =>
+          prev && providersRes.options.includes(prev) ? prev : providersRes.default
+        )
 
         // Agregamos por semana para pintar las barras del selector
         const byWeek = {}
@@ -175,6 +195,9 @@ export default function App() {
           loading={loading}
           format={format}
           onFormat={changeFormat}
+          providerOptions={providerOptions}
+          provider={provider}
+          onProvider={changeProvider}
         />
       )}
 
@@ -188,7 +211,9 @@ export default function App() {
             options={current.options}
             index={current.wordIndex}
             total={session.words.length}
-            onSubmit={(answer) => evaluate(current.word.id, current.mode, answer, format)}
+            onSubmit={(answer) =>
+              evaluate(current.word.id, current.mode, answer, format, provider)
+            }
             onNext={() => setStep((s) => s + 1)}
           />
           <button className="btn ghost" onClick={exitSession}>
@@ -203,7 +228,8 @@ export default function App() {
           onSubmit={(text) =>
             freePractice(
               session.words.map((w) => w.id),
-              text
+              text,
+              provider
             )
           }
           onFinish={() => setFinished(true)}

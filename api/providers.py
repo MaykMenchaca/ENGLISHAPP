@@ -17,7 +17,14 @@ import urllib.request
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-3.1-flash-lite"]
 CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
+# deepseek-chat (no razona) responde rápido y barato. deepseek-reasoner existe
+# pero repetiría el problema que ya tuvimos con Gemini: gasta el presupuesto
+# pensando y el JSON llega cortado. No usarlo aquí.
+DEEPSEEK_MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
 TIMEOUT = 30
+
+PROVIDERS = ("gemini", "claude", "deepseek")
+DEFAULT_PROVIDER = os.environ.get("PROVIDER", "gemini").strip().lower()
 
 # Errores pasajeros del proveedor: saturación, límite de tasa, fallo interno.
 # Reintentar tiene sentido; con un 400 o 401 no.
@@ -130,13 +137,55 @@ def call_claude(system: str, user: str) -> str:
         raise ProviderError(f"Respuesta inesperada de Claude: {json.dumps(body)[:300]}") from exc
 
 
-def call_llm(system: str, user: str) -> str:
-    provider = os.environ.get("PROVIDER", "gemini").strip().lower()
+def call_deepseek(system: str, user: str) -> str:
+    key = os.environ.get("DEEPSEEK_API_KEY")
+    if not key:
+        raise ProviderError("Falta DEEPSEEK_API_KEY en las variables de entorno.")
+
+    payload = {
+        "model": DEEPSEEK_MODEL,
+        "temperature": 0.2,
+        "max_tokens": MAX_TOKENS,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        # API compatible con OpenAI: esto obliga la salida a ser JSON válido,
+        # así que aquí nos ahorramos el baile de vallas de código de extract_json.
+        "response_format": {"type": "json_object"},
+    }
+    body = _post_json(
+        "https://api.deepseek.com/chat/completions",
+        payload,
+        {"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+    )
+
+    try:
+        return body["choices"][0]["message"]["content"]
+    except (KeyError, IndexError) as exc:
+        raise ProviderError(f"Respuesta inesperada de DeepSeek: {json.dumps(body)[:300]}") from exc
+
+
+def call_llm(system: str, user: str, provider: str | None = None) -> str:
+    """provider, si se da, gana sobre PROVIDER (env). Así el frontend puede
+    elegir el motor por petición sin tener que redesplegar nada."""
+    provider = (provider or DEFAULT_PROVIDER).strip().lower()
     if provider == "gemini":
         return call_gemini(system, user)
     if provider in ("claude", "anthropic"):
         return call_claude(system, user)
-    raise ProviderError(f"PROVIDER desconocido: {provider!r}. Usa 'gemini' o 'claude'.")
+    if provider == "deepseek":
+        return call_deepseek(system, user)
+    raise ProviderError(f"Proveedor desconocido: {provider!r}. Usa gemini, claude o deepseek.")
+
+
+def configured_providers() -> dict:
+    """Qué proveedores tienen clave puesta, sin revelar el valor de la clave."""
+    return {
+        "gemini": bool(os.environ.get("GEMINI_API_KEY")),
+        "claude": bool(os.environ.get("ANTHROPIC_API_KEY")),
+        "deepseek": bool(os.environ.get("DEEPSEEK_API_KEY")),
+    }
 
 
 def extract_json(raw: str) -> dict:

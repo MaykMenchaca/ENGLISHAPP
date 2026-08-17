@@ -23,10 +23,24 @@ except ImportError:
 
 try:  # ejecutado como paquete (uvicorn api.index:app)
     from .db import Attempt, Word, get_session, init_db
-    from .providers import ProviderError, call_llm, extract_json
+    from .providers import (
+        DEFAULT_PROVIDER,
+        PROVIDERS,
+        ProviderError,
+        call_llm,
+        configured_providers,
+        extract_json,
+    )
 except ImportError:  # ejecutado como script suelto (Vercel)
     from db import Attempt, Word, get_session, init_db
-    from providers import ProviderError, call_llm, extract_json
+    from providers import (
+        DEFAULT_PROVIDER,
+        PROVIDERS,
+        ProviderError,
+        call_llm,
+        configured_providers,
+        extract_json,
+    )
 
 app = FastAPI(title="Tutor de inglés")
 router = APIRouter()
@@ -60,6 +74,11 @@ class EvaluateRequest(BaseModel):
     # "choice" se resuelve aquí mismo comparando contra la respuesta conocida:
     # instantáneo, sin gastar cuota y sin depender de que el LLM esté arriba.
     format: str = Field(default="text", pattern="^(text|choice)$")
+    # Si no se manda, call_llm() cae en PROVIDER (env). Nunca es la clave en sí,
+    # solo el nombre del proveedor — la clave nunca sale del servidor.
+    # Validado aquí (422 si no es uno de estos) para no gastar un round-trip
+    # al proveedor con un nombre que sabemos que va a fallar.
+    provider: Optional[str] = Field(default=None, pattern="^(gemini|claude|anthropic|deepseek)$")
 
 
 def _normalize(value: str) -> str:
@@ -72,6 +91,7 @@ def _normalize(value: str) -> str:
 class FreePracticeRequest(BaseModel):
     word_ids: List[int] = []
     user_answer: str
+    provider: Optional[str] = Field(default=None, pattern="^(gemini|claude|anthropic|deepseek)$")
 
 
 @app.on_event("startup")
@@ -85,7 +105,18 @@ def _startup():
 
 @router.get("/health")
 def health():
-    return {"ok": True, "provider": os.environ.get("PROVIDER", "gemini")}
+    return {"ok": True, "provider": DEFAULT_PROVIDER}
+
+
+@router.get("/providers")
+def providers():
+    """Qué motores de IA puede ofrecer el selector del frontend. Solo booleanos:
+    la existencia de la clave nunca implica exponer su valor."""
+    available = configured_providers()
+    return {
+        "default": DEFAULT_PROVIDER if available.get(DEFAULT_PROVIDER) else None,
+        "options": [p for p in PROVIDERS if available.get(p)],
+    }
 
 
 @router.get("/lessons")
@@ -210,7 +241,7 @@ def evaluate(payload: EvaluateRequest):
             )
 
         try:
-            raw = call_llm(SYSTEM_PROMPT, user_prompt)
+            raw = call_llm(SYSTEM_PROMPT, user_prompt, provider=payload.provider)
             parsed = extract_json(raw)
         except ProviderError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
@@ -260,7 +291,7 @@ def free_practice(payload: FreePracticeRequest):
         )
 
         try:
-            raw = call_llm(SYSTEM_PROMPT, user_prompt)
+            raw = call_llm(SYSTEM_PROMPT, user_prompt, provider=payload.provider)
             parsed = extract_json(raw)
         except ProviderError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
