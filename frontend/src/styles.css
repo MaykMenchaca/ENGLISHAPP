@@ -1,0 +1,333 @@
+:root {
+  --bg: #10161b;
+  --surface: #17202a;
+  --surface-2: #1d2833;
+  --ink: #e7edef;
+  --soft: #a9b8c2;
+  --faint: #6f808c;
+  --accent: #6bb3de;
+  --accent-deep: #9bceea;
+  --good: #6bbe96;
+  --good-bg: #16301f;
+  --bad: #e08a52;
+  --bad-bg: #33241a;
+  --line: #263039;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 18px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- encabezado ---------- */
+.masthead .eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.masthead h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.lede {
+  margin: 0;
+  color: var(--soft);
+  font-size: 15px;
+}
+
+/* ---------- selector de bloques ---------- */
+.lesson-grid {
+  display: grid;
+  gap: 12px;
+}
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, transform 140ms ease;
+}
+.lesson-card:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.lesson-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.lesson-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.lesson-num {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.lesson-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.lesson-meta {
+  font-size: 13px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  display: block;
+  height: 5px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 4px 0 2px;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 250ms ease;
+}
+
+/* ---------- tarjeta de ejercicio ---------- */
+.progress-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.mode-chip {
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.prompt-label {
+  margin: 0 0 12px;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.term {
+  margin: 0 0 18px;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  line-height: 1.2;
+}
+.sentence {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.6;
+}
+.prompt-hint {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--faint);
+}
+.word-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 16px;
+}
+.chip {
+  padding: 4px 10px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--accent-deep);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.input {
+  width: 100%;
+  padding: 13px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px evita el zoom automático en iOS */
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.input:disabled {
+  opacity: 0.65;
+}
+.textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.btn {
+  padding: 13px 18px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn.primary {
+  background: var(--accent);
+  color: #08131b;
+}
+.btn.primary:hover:not(:disabled) {
+  background: var(--accent-deep);
+}
+.btn.primary:disabled {
+  background: var(--surface-2);
+  color: var(--faint);
+  cursor: not-allowed;
+}
+.btn.ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--soft);
+  align-self: flex-start;
+}
+.btn.ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- feedback ---------- */
+.feedback {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.feedback.ok {
+  background: var(--good-bg);
+  border-color: var(--good);
+}
+.feedback.bad {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+}
+.feedback-verdict {
+  margin: 0;
+  font-weight: 600;
+  font-size: 15px;
+}
+.feedback.ok .feedback-verdict {
+  color: var(--good);
+}
+.feedback.bad .feedback-verdict {
+  color: var(--bad);
+}
+.feedback-text {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.feedback-corrected {
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.feedback-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 4px;
+}
+.feedback .btn {
+  align-self: flex-start;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--bad);
+  font-size: 14px;
+}
+.error-card h2,
+.done-card h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+.done-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+code {
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

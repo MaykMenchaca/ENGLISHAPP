@@ -1,0 +1,253 @@
+"""Tutor de inglés — API FastAPI.
+
+Entrypoint tanto para uvicorn en local como para la función serverless de Vercel.
+"""
+import os
+from pathlib import Path
+from typing import List, Optional
+
+from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from sqlalchemy import func, select
+
+# Carga .env en desarrollo local. En Vercel las variables ya vienen del entorno.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
+
+try:  # ejecutado como paquete (uvicorn api.index:app)
+    from .db import Attempt, Word, get_session, init_db
+    from .providers import ProviderError, call_llm, extract_json
+except ImportError:  # ejecutado como script suelto (Vercel)
+    from db import Attempt, Word, get_session, init_db
+    from providers import ProviderError, call_llm, extract_json
+
+app = FastAPI(title="Tutor de inglés")
+router = APIRouter()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+SYSTEM_PROMPT = (
+    "Eres un tutor de inglés para un estudiante hispanohablante mexicano, ingeniero "
+    "industrial, que se prepara para el TOEFL iBT y está en nivel principiante-intermedio.\n"
+    "Reglas que nunca rompes:\n"
+    "1. Explicas SIEMPRE en español, aunque el estudiante escriba en inglés.\n"
+    "2. Aceptas paráfrasis y sinónimos: si entendió la idea, es correcto. No exiges "
+    "la traducción literal del diccionario.\n"
+    "3. En 'completion' aceptas variaciones menores de forma (plural, conjugación) "
+    "si la palabra es la correcta.\n"
+    "4. Eres breve: máximo 2 o 3 frases de feedback.\n"
+    "5. Nunca eres punitivo. Si se equivoca, explicas la diferencia con un ejemplo corto.\n"
+    "6. Devuelves EXCLUSIVAMENTE un objeto JSON, sin texto adicional ni markdown."
+)
+
+
+class EvaluateRequest(BaseModel):
+    word_id: int
+    mode: str = Field(pattern="^(meaning|completion)$")
+    user_answer: str
+
+
+class FreePracticeRequest(BaseModel):
+    word_ids: List[int] = []
+    user_answer: str
+
+
+@app.on_event("startup")
+def _startup():
+    # Crea las tablas si no existen. Es idempotente.
+    try:
+        init_db()
+    except Exception as exc:  # noqa: BLE001 - no queremos tumbar el arranque en frío
+        print(f"[startup] No se pudo inicializar la DB: {exc}")
+
+
+@router.get("/health")
+def health():
+    return {"ok": True, "provider": os.environ.get("PROVIDER", "gemini")}
+
+
+@router.get("/lessons")
+def lessons():
+    session = get_session()
+    try:
+        rows = session.execute(select(Word).order_by(Word.week, Word.id)).scalars().all()
+        weeks = {}
+        for word in rows:
+            weeks.setdefault(word.week, []).append(word.as_dict())
+        return {
+            "weeks": [
+                {"week": w, "count": len(words), "words": words}
+                for w, words in sorted(weeks.items())
+            ]
+        }
+    finally:
+        session.close()
+
+
+@router.get("/progress")
+def progress(week: Optional[int] = None):
+    """Aciertos y fallos por palabra, para priorizar lo que peor domina."""
+    session = get_session()
+    try:
+        query = select(Word)
+        if week is not None:
+            query = query.where(Word.week == week)
+        words = session.execute(query.order_by(Word.id)).scalars().all()
+
+        stats = dict(
+            session.execute(
+                select(
+                    Attempt.word_id,
+                    func.count(Attempt.id),
+                ).group_by(Attempt.word_id)
+            ).all()
+        )
+        correct_stats = dict(
+            session.execute(
+                select(
+                    Attempt.word_id,
+                    func.count(Attempt.id),
+                )
+                .where(Attempt.correct.is_(True))
+                .group_by(Attempt.word_id)
+            ).all()
+        )
+
+        items = []
+        for word in words:
+            total = stats.get(word.id, 0)
+            ok = correct_stats.get(word.id, 0)
+            items.append(
+                {
+                    **word.as_dict(),
+                    "attempts": total,
+                    "correct": ok,
+                    "accuracy": round(ok / total, 2) if total else None,
+                }
+            )
+        return {"items": items}
+    finally:
+        session.close()
+
+
+@router.post("/evaluate")
+def evaluate(payload: EvaluateRequest):
+    session = get_session()
+    try:
+        word = session.get(Word, payload.word_id)
+        if word is None:
+            raise HTTPException(status_code=404, detail="Palabra no encontrada")
+
+        answer = payload.user_answer.strip()
+        if not answer:
+            raise HTTPException(status_code=400, detail="La respuesta está vacía")
+
+        if payload.mode == "meaning":
+            user_prompt = (
+                f'Palabra en inglés: "{word.term}"\n'
+                f'Significado de referencia: "{word.spanish}"\n'
+                f'El estudiante respondió: "{answer}"\n\n'
+                "¿Su respuesta demuestra que entiende la palabra? Responde con este JSON:\n"
+                '{"correct": true|false, "feedback": "explicación breve en español"}'
+            )
+        else:
+            user_prompt = (
+                f'Oración: "{word.sentence}"\n'
+                f'La palabra que faltaba era: "{word.term}"\n'
+                f'El estudiante escribió: "{answer}"\n\n'
+                "¿Escribió la palabra correcta? Acepta variaciones de forma "
+                "(plural, conjugación). Responde con este JSON:\n"
+                '{"correct": true|false, "feedback": "explicación breve en español"}'
+            )
+
+        try:
+            raw = call_llm(SYSTEM_PROMPT, user_prompt)
+            parsed = extract_json(raw)
+        except ProviderError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+        correct = bool(parsed.get("correct", False))
+        feedback = str(parsed.get("feedback", "")).strip() or "Sin comentarios."
+
+        session.add(
+            Attempt(
+                word_id=word.id,
+                mode=payload.mode,
+                user_answer=answer,
+                correct=correct,
+                feedback=feedback,
+            )
+        )
+        session.commit()
+
+        return {"correct": correct, "feedback": feedback, "term": word.term}
+    finally:
+        session.close()
+
+
+@router.post("/free-practice")
+def free_practice(payload: FreePracticeRequest):
+    session = get_session()
+    try:
+        answer = payload.user_answer.strip()
+        if not answer:
+            raise HTTPException(status_code=400, detail="El texto está vacío")
+
+        terms = []
+        if payload.word_ids:
+            terms = [
+                w.term
+                for w in session.execute(
+                    select(Word).where(Word.id.in_(payload.word_ids))
+                ).scalars()
+            ]
+
+        user_prompt = (
+            f'El estudiante escribió este texto en inglés:\n"{answer}"\n\n'
+            + (f"Debía usar estas palabras: {', '.join(terms)}\n\n" if terms else "")
+            + "Corrígelo. Responde con este JSON:\n"
+            '{"correct": true|false, "corrected": "el texto corregido en inglés", '
+            '"feedback": "explicación en español de los 1-3 errores más importantes"}'
+        )
+
+        try:
+            raw = call_llm(SYSTEM_PROMPT, user_prompt)
+            parsed = extract_json(raw)
+        except ProviderError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+        corrected = str(parsed.get("corrected", "")).strip()
+        feedback = str(parsed.get("feedback", "")).strip() or "Sin comentarios."
+        correct = bool(parsed.get("correct", False))
+
+        session.add(
+            Attempt(
+                word_id=None,
+                mode="free_practice",
+                user_answer=answer,
+                correct=correct,
+                feedback=feedback,
+            )
+        )
+        session.commit()
+
+        return {"correct": correct, "corrected": corrected, "feedback": feedback}
+    finally:
+        session.close()
+
+
+# El runtime de Python en Vercel puede entregar la ruta con o sin el prefijo /api
+# segun como resuelva el rewrite. Montar el router dos veces hace que ambas
+# funcionen y evita 404 solo en produccion.
+app.include_router(router, prefix="/api")
+app.include_router(router)
