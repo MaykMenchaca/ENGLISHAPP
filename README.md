@@ -40,6 +40,35 @@ También hay un **diccionario personal** para guardar palabras que encuentres po
 
 Todo se guarda en Postgres, así que el progreso es el mismo en la compu y en el celular.
 
+## Seguridad
+
+La app pide usuario y contraseña. **Toda la API está protegida**; solo `/health`, `/me`,
+`/login` y `/logout` son públicas.
+
+Lo que esto protege es la API, que es donde están los activos reales: la **cuota de tus
+claves de IA**, tu progreso y tu diccionario. Los archivos del frontend son públicos por
+naturaleza en cualquier hosting estático, pero no contienen nada secreto.
+
+Detalles de la implementación:
+
+- La contraseña **nunca se guarda**: solo su hash **scrypt** con sal aleatoria.
+- La sesión es una cookie **HttpOnly** (el JavaScript de la página no puede leerla, así
+  que un XSS no podría robarla), **SameSite=Lax** (protege contra CSRF) y **Secure** en
+  producción. Dura 1 día.
+- El token va firmado con HMAC-SHA256: si alguien altera un solo byte, se rechaza.
+- Las comparaciones de contraseña y firma usan `hmac.compare_digest`, en tiempo constante.
+- **Falla cerrada**: si faltan `AUTH_USERNAME`, `AUTH_PASSWORD_HASH` o `SESSION_SECRET`,
+  la API responde 401 a todo. Una configuración incompleta nunca deja la puerta abierta.
+
+### Cambiar la contraseña
+
+```bash
+python api/make_password_hash.py
+```
+
+Te la pide sin mostrarla en pantalla y te devuelve el hash para pegar en `.env` y en las
+variables de Vercel. La contraseña en texto plano no toca ningún archivo.
+
 ---
 
 ## Puesta en marcha

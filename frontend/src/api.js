@@ -1,5 +1,15 @@
+// App registra aquí qué hacer cuando el servidor responde 401 (sesión expirada o
+// ausente), para volver al login en vez de mostrar un error críptico.
+let onUnauthorized = () => {}
+export const setUnauthorizedHandler = (fn) => {
+  onUnauthorized = fn
+}
+
 async function request(path, options = {}) {
   const res = await fetch(path, {
+    // Sin esto el navegador no manda la cookie de sesión en desarrollo, donde el
+    // frontend (5173) y la API (8000) son orígenes distintos.
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })
@@ -12,11 +22,23 @@ async function request(path, options = {}) {
     } catch {
       // respuesta sin JSON, nos quedamos con el código
     }
+    if (res.status === 401) onUnauthorized()
     throw new Error(detail)
   }
 
   return res.json()
 }
+
+// --- sesión ---
+export const getMe = () => request('/api/me')
+
+export const login = (username, password) =>
+  request('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  })
+
+export const logout = () => request('/api/logout', { method: 'POST' })
 
 export const getLessons = (track = 'engineering') =>
   request(`/api/lessons?track=${track}`)

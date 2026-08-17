@@ -123,6 +123,19 @@ body {
   font-size: 13.5px;
   font-weight: 500;
 }
+.tabs .tab-logout {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.tabs .tab-logout:hover {
+  color: var(--bad);
+}
+
+/* La pantalla de login no compite con nada: se centra en el alto de la ventana. */
+.login-stack {
+  min-height: 70vh;
+  justify-content: center;
+}
 
 /* ---------- diccionario personal ---------- */
 .dict-list {

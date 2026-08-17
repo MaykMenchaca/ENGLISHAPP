@@ -8,7 +8,7 @@ import unicodedata
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi import APIRouter, Cookie, Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
@@ -38,6 +38,16 @@ try:  # ejecutado como paquete (uvicorn api.index:app)
         configured_providers,
         extract_json,
     )
+    from .auth import (
+        COOKIE_NAME,
+        SESSION_MAX_AGE,
+        auth_configured,
+        check_credentials,
+        cookie_is_secure,
+        create_session_token,
+        require_auth,
+        verify_session_token,
+    )
 except ImportError:  # ejecutado como script suelto (Vercel)
     from db import (
         TRACK_ENGINEERING,
@@ -55,15 +65,32 @@ except ImportError:  # ejecutado como script suelto (Vercel)
         configured_providers,
         extract_json,
     )
+    from auth import (
+        COOKIE_NAME,
+        SESSION_MAX_AGE,
+        auth_configured,
+        check_credentials,
+        cookie_is_secure,
+        create_session_token,
+        require_auth,
+        verify_session_token,
+    )
 
 app = FastAPI(title="Tutor de inglés")
-router = APIRouter()
+
+# Dos routers: lo público (login, salud) y lo protegido. La dependencia se aplica a
+# nivel de router, no ruta por ruta, para que una ruta nueva no nazca desprotegida.
+public_router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_auth)])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
+    # Necesario para que el navegador mande la cookie de sesión en desarrollo,
+    # donde el frontend (5173) y la API (8000) son orígenes distintos.
+    allow_credentials=True,
 )
 
 SYSTEM_PROMPT = (
@@ -117,9 +144,58 @@ def _startup():
         print(f"[startup] No se pudo inicializar la DB: {exc}")
 
 
-@router.get("/health")
+# ---------------------------------------------------------------- rutas públicas
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@public_router.get("/health")
 def health():
-    return {"ok": True, "provider": DEFAULT_PROVIDER}
+    return {"ok": True, "auth_configured": auth_configured()}
+
+
+@public_router.get("/me")
+def me(tutor_session: Optional[str] = Cookie(default=None)):
+    """El frontend pregunta esto al cargar para saber si mostrar el login."""
+    username = verify_session_token(tutor_session or "") if auth_configured() else None
+    return {"authenticated": bool(username), "username": username}
+
+
+@public_router.post("/login")
+def login(payload: LoginRequest, response: Response):
+    if not auth_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="La autenticación no está configurada en el servidor.",
+        )
+
+    if not check_credentials(payload.username, payload.password):
+        # Mismo mensaje para usuario y contraseña incorrectos: decir cuál de los dos
+        # falló le confirmaría a un atacante que el usuario existe.
+        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos.")
+
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=create_session_token(payload.username.strip()),
+        max_age=SESSION_MAX_AGE,
+        httponly=True,  # el JavaScript de la página no puede leerla
+        samesite="lax",  # un POST desde otro sitio no la envía (CSRF)
+        secure=cookie_is_secure(),
+        path="/",
+    )
+    return {"ok": True, "username": payload.username.strip()}
+
+
+@public_router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key=COOKIE_NAME, path="/")
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------- rutas protegidas
 
 
 @router.get("/providers")
@@ -415,5 +491,7 @@ def dictionary_delete(entry_id: int):
 # El runtime de Python en Vercel puede entregar la ruta con o sin el prefijo /api
 # segun como resuelva el rewrite. Montar el router dos veces hace que ambas
 # funcionen y evita 404 solo en produccion.
+app.include_router(public_router, prefix="/api")
+app.include_router(public_router)
 app.include_router(router, prefix="/api")
 app.include_router(router)

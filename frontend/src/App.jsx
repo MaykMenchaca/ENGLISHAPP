@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { evaluate, freePractice, getLessons, getProgress, getProviders } from './api.js'
+import {
+  evaluate,
+  freePractice,
+  getLessons,
+  getMe,
+  getProgress,
+  getProviders,
+  logout as apiLogout,
+  setUnauthorizedHandler,
+} from './api.js'
+import Login from './components/Login.jsx'
 import LessonSelector from './components/LessonSelector.jsx'
 import ExerciseCard from './components/ExerciseCard.jsx'
 import FreePractice from './components/FreePractice.jsx'
@@ -52,6 +62,9 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [fatalError, setFatalError] = useState(null)
 
+  // null = todavía no sabemos si hay sesión (evita parpadear el login al cargar)
+  const [authenticated, setAuthenticated] = useState(null)
+
   // Estado de la sesión activa
   const [session, setSession] = useState(null) // { week, words, pool }
   const [step, setStep] = useState(0) // índice sobre words * MODES
@@ -88,8 +101,36 @@ export default function App() {
     localStorage.setItem('tutor-track', next)
   }
 
-  // Se vuelve a cargar al cambiar de track: cada uno tiene sus propias secciones.
+  // Cualquier 401 (sesión expirada a media sesión) devuelve al login.
   useEffect(() => {
+    setUnauthorizedHandler(() => setAuthenticated(false))
+  }, [])
+
+  // ¿Hay sesión? Se pregunta una vez al cargar.
+  useEffect(() => {
+    let alive = true
+    getMe()
+      .then((d) => alive && setAuthenticated(d.authenticated))
+      .catch(() => alive && setAuthenticated(false))
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  async function handleLogout() {
+    try {
+      await apiLogout()
+    } catch {
+      // aunque falle en el servidor, localmente volvemos al login
+    }
+    setSession(null)
+    setShowDictionary(false)
+    setAuthenticated(false)
+  }
+
+  // Se vuelve a cargar al cambiar de track o al iniciar sesión.
+  useEffect(() => {
+    if (!authenticated) return
     let alive = true
     setLoading(true)
     ;(async () => {
@@ -118,7 +159,7 @@ export default function App() {
     return () => {
       alive = false
     }
-  }, [track])
+  }, [track, authenticated])
 
   async function startWeek(week) {
     setLoading(true)
@@ -170,6 +211,28 @@ export default function App() {
       .catch(() => {})
   }
 
+  // Estos dos van ANTES que cualquier otra pantalla: sin sesión no se muestra nada.
+  if (authenticated === null) {
+    return (
+      <main className="shell">
+        <p className="lede">Cargando…</p>
+      </main>
+    )
+  }
+
+  if (!authenticated) {
+    return (
+      <main className="shell">
+        <Login
+          onSuccess={() => {
+            setFatalError(null)
+            setAuthenticated(true)
+          }}
+        />
+      </main>
+    )
+  }
+
   if (fatalError && !session) {
     return (
       <main className="shell">
@@ -217,6 +280,7 @@ export default function App() {
           track={track}
           onTrack={changeTrack}
           onDictionary={() => setShowDictionary(true)}
+          onLogout={handleLogout}
         />
       )}
 

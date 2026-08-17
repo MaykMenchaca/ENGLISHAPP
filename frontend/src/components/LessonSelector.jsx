@@ -17,6 +17,7 @@ export default function LessonSelector({
   track,
   onTrack,
   onDictionary,
+  onLogout,
 }) {
   return (
     <div className="stack">
@@ -46,6 +47,9 @@ export default function LessonSelector({
         </button>
         <button type="button" className="tab-side" onClick={onDictionary}>
           Mi diccionario
+        </button>
+        <button type="button" className="tab-logout" onClick={onLogout}>
+          Salir
         </button>
       </div>
 
