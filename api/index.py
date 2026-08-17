@@ -3,6 +3,8 @@
 Entrypoint tanto para uvicorn en local como para la función serverless de Vercel.
 """
 import os
+import re
+import unicodedata
 from pathlib import Path
 from typing import List, Optional
 
@@ -55,6 +57,16 @@ class EvaluateRequest(BaseModel):
     word_id: int
     mode: str = Field(pattern="^(meaning|completion)$")
     user_answer: str
+    # "choice" se resuelve aquí mismo comparando contra la respuesta conocida:
+    # instantáneo, sin gastar cuota y sin depender de que el LLM esté arriba.
+    format: str = Field(default="text", pattern="^(text|choice)$")
+
+
+def _normalize(value: str) -> str:
+    """Para comparar opciones: sin mayúsculas, acentos ni puntuación de sobra."""
+    lowered = unicodedata.normalize("NFD", value.strip().lower())
+    stripped = "".join(c for c in lowered if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9\s]", "", stripped).strip()
 
 
 class FreePracticeRequest(BaseModel):
@@ -152,6 +164,33 @@ def evaluate(payload: EvaluateRequest):
         if not answer:
             raise HTTPException(status_code=400, detail="La respuesta está vacía")
 
+        # --- Opción múltiple: se resuelve sin LLM ---
+        if payload.format == "choice":
+            expected = word.spanish if payload.mode == "meaning" else word.term
+            correct = _normalize(answer) == _normalize(expected)
+
+            if correct:
+                feedback = f"Correcto. «{word.term}» = {word.spanish.rstrip('.')}."
+            else:
+                feedback = (
+                    f"La correcta era «{expected.rstrip('.')}». "
+                    f"Recuerda: {word.term} = {word.spanish.rstrip('.')}."
+                )
+            feedback += f" Ejemplo: {word.sentence}"
+
+            session.add(
+                Attempt(
+                    word_id=word.id,
+                    mode=payload.mode,
+                    user_answer=answer,
+                    correct=correct,
+                    feedback=feedback,
+                )
+            )
+            session.commit()
+            return {"correct": correct, "feedback": feedback, "term": word.term}
+
+        # --- Texto libre: aquí sí evalúa el LLM ---
         if payload.mode == "meaning":
             user_prompt = (
                 f'Palabra en inglés: "{word.term}"\n'

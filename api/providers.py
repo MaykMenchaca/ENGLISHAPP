@@ -6,12 +6,29 @@ Cambiar de proveedor es cambiar la variable PROVIDER, no tocar código.
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+# Cadena de respaldo: si el primero está saturado (503) o lo retiraron (404),
+# se intenta el siguiente. Medido con el prompt real de práctica libre:
+# gemini-2.5-flash 3/3 en 1.2s; gemini-flash-latest 2/3 en 9.7s.
+# El alias "latest" queda de red de seguridad para cuando retiren el fijo.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_FALLBACKS = ["gemini-flash-latest", "gemini-3.1-flash-lite"]
 CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
 TIMEOUT = 30
+
+# Errores pasajeros del proveedor: saturación, límite de tasa, fallo interno.
+# Reintentar tiene sentido; con un 400 o 401 no.
+RETRYABLE = {429, 500, 502, 503, 504}
+MAX_ATTEMPTS = 3
+
+# Medido: la corrección de texto libre usa ~105 tokens de salida con el razonamiento
+# desactivado; 512 deja 5x de margen para textos más largos del estudiante.
+# Pedir mucho más no es gratis: el tier gratuito de Gemini limita TOKENS por minuto,
+# así que un presupuesto inflado agota la cuota aunque no se llegue a usar.
+MAX_TOKENS = 512
 
 
 class ProviderError(RuntimeError):
@@ -20,15 +37,25 @@ class ProviderError(RuntimeError):
 
 def _post_json(url: str, payload: dict, headers: dict) -> dict:
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")[:400]
-        raise ProviderError(f"HTTP {exc.code}: {detail}") from exc
-    except urllib.error.URLError as exc:
-        raise ProviderError(f"No se pudo conectar con el proveedor: {exc.reason}") from exc
+    last_error = None
+
+    for attempt in range(MAX_ATTEMPTS):
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")[:400]
+            last_error = ProviderError(f"HTTP {exc.code}: {detail}")
+            if exc.code not in RETRYABLE:
+                raise last_error from exc
+        except urllib.error.URLError as exc:
+            last_error = ProviderError(f"No se pudo conectar con el proveedor: {exc.reason}")
+
+        if attempt < MAX_ATTEMPTS - 1:
+            time.sleep(1.5 * (2**attempt))  # 1.5s, luego 3s
+
+    raise last_error
 
 
 def call_gemini(system: str, user: str) -> str:
@@ -36,20 +63,43 @@ def call_gemini(system: str, user: str) -> str:
     if not key:
         raise ProviderError("Falta GEMINI_API_KEY en las variables de entorno.")
 
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
-    )
     payload = {
         "system_instruction": {"parts": [{"text": system}]},
         "contents": [{"role": "user", "parts": [{"text": user}]}],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 600},
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": MAX_TOKENS,
+            # Sin esto los modelos nuevos gastan el presupuesto razonando y el JSON
+            # llega cortado a media frase. Para corregir texto no hace falta.
+            "thinkingConfig": {"thinkingBudget": 0},
+        },
     }
-    body = _post_json(url, payload, {"Content-Type": "application/json", "x-goog-api-key": key})
+    headers = {"Content-Type": "application/json", "x-goog-api-key": key}
 
-    try:
-        return body["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError) as exc:
-        raise ProviderError(f"Respuesta inesperada de Gemini: {json.dumps(body)[:300]}") from exc
+    # Modelos a intentar, sin repetir si el usuario fijó uno que ya está en la lista
+    candidates = [GEMINI_MODEL] + [m for m in GEMINI_FALLBACKS if m != GEMINI_MODEL]
+    last_error = None
+
+    for model in candidates:
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model}:generateContent"
+        )
+        try:
+            body = _post_json(url, payload, headers)
+        except ProviderError as exc:
+            last_error = exc
+            continue  # saturado o retirado: probamos el siguiente
+
+        try:
+            return body["candidates"][0]["content"]["parts"][0]["text"]
+        except (KeyError, IndexError) as exc:
+            last_error = ProviderError(
+                f"Respuesta inesperada de Gemini ({model}): {json.dumps(body)[:300]}"
+            )
+            continue
+
+    raise last_error
 
 
 def call_claude(system: str, user: str) -> str:
@@ -59,7 +109,7 @@ def call_claude(system: str, user: str) -> str:
 
     payload = {
         "model": CLAUDE_MODEL,
-        "max_tokens": 600,
+        "max_tokens": MAX_TOKENS,
         "temperature": 0.2,
         "system": system,
         "messages": [{"role": "user", "content": user}],
@@ -93,15 +143,21 @@ def extract_json(raw: str) -> dict:
     """Los modelos a veces envuelven el JSON en ```json ... ``` o texto suelto."""
     text = raw.strip()
 
-    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
-    if fenced:
-        text = fenced.group(1)
-    else:
-        braces = re.search(r"\{.*\}", text, re.S)
-        if braces:
-            text = braces.group(0)
+    # Quitamos la valla de apertura y la de cierre por separado: si la respuesta
+    # llegó cortada, la de cierre puede no existir y exigir ambas fallaría.
+    text = re.sub(r"^```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```$", "", text).strip()
+
+    # Del primer { al último }, por si sobra texto alrededor.
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        text = text[start : end + 1]
 
     try:
         return json.loads(text)
     except json.JSONDecodeError as exc:
-        raise ProviderError(f"El modelo no devolvió JSON válido: {raw[:300]}") from exc
+        # El mensaje incluye bastante contexto: recortar demasiado esconde si el
+        # problema fue truncamiento o formato.
+        raise ProviderError(
+            f"El modelo no devolvió JSON válido (largo {len(raw)}): {raw[:600]}"
+        ) from exc

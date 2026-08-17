@@ -23,10 +23,10 @@ export const getLessons = () => request('/api/lessons')
 export const getProgress = (week) =>
   request(week ? `/api/progress?week=${week}` : '/api/progress')
 
-export const evaluate = (wordId, mode, userAnswer) =>
+export const evaluate = (wordId, mode, userAnswer, format = 'text') =>
   request('/api/evaluate', {
     method: 'POST',
-    body: JSON.stringify({ word_id: wordId, mode, user_answer: userAnswer }),
+    body: JSON.stringify({ word_id: wordId, mode, user_answer: userAnswer, format }),
   })
 
 export const freePractice = (wordIds, userAnswer) =>

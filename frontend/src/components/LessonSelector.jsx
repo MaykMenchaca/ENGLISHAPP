@@ -5,7 +5,7 @@ const TITLES = {
   4: 'Gestión y abstractos',
 }
 
-export default function LessonSelector({ weeks, progress, onStart, loading }) {
+export default function LessonSelector({ weeks, progress, onStart, loading, format, onFormat }) {
   return (
     <div className="stack">
       <header className="masthead">
@@ -16,6 +16,31 @@ export default function LessonSelector({ weeks, progress, onStart, loading }) {
           te pido completarla dentro de una oración. Te corrijo en español.
         </p>
       </header>
+
+      <div className="switch-row">
+        <span className="switch-label">Cómo quieres responder</span>
+        <div className="switch" role="group" aria-label="Formato de respuesta">
+          <button
+            type="button"
+            className={format === 'choice' ? 'active' : ''}
+            onClick={() => onFormat('choice')}
+          >
+            Opciones
+          </button>
+          <button
+            type="button"
+            className={format === 'text' ? 'active' : ''}
+            onClick={() => onFormat('text')}
+          >
+            Escribir
+          </button>
+        </div>
+        <p className="switch-hint">
+          {format === 'choice'
+            ? 'Eliges entre 4 opciones. Respuesta inmediata, ideal para empezar.'
+            : 'Escribes tu respuesta y la IA te corrige en español. Cuesta más, enseña más.'}
+        </p>
+      </div>
 
       <div className="lesson-grid">
         {weeks.map((w) => {

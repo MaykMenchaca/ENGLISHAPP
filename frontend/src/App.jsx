@@ -6,6 +6,29 @@ import FreePractice from './components/FreePractice.jsx'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
+const OPTIONS_PER_QUESTION = 4
+
+function shuffle(list) {
+  const copy = [...list]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
+/** 1 respuesta correcta + 3 distractores tomados de la misma semana. */
+function buildOptions(word, mode, pool) {
+  const field = mode === 'meaning' ? 'spanish' : 'term'
+  const correct = word[field]
+  const distractors = shuffle(
+    pool.filter((w) => w.id !== word.id).map((w) => w[field])
+  )
+    .filter((value, i, arr) => value !== correct && arr.indexOf(value) === i)
+    .slice(0, OPTIONS_PER_QUESTION - 1)
+
+  return shuffle([correct, ...distractors])
+}
 
 export default function App() {
   const [weeks, setWeeks] = useState([])
@@ -14,9 +37,19 @@ export default function App() {
   const [fatalError, setFatalError] = useState(null)
 
   // Estado de la sesión activa
-  const [session, setSession] = useState(null) // { week, words }
+  const [session, setSession] = useState(null) // { week, words, pool }
   const [step, setStep] = useState(0) // índice sobre words * MODES
   const [finished, setFinished] = useState(false)
+
+  // 'choice' (opciones) o 'text' (escribir). Se recuerda entre sesiones.
+  const [format, setFormat] = useState(
+    () => localStorage.getItem('tutor-format') || 'choice'
+  )
+
+  function changeFormat(next) {
+    setFormat(next)
+    localStorage.setItem('tutor-format', next)
+  }
 
   useEffect(() => {
     let alive = true
@@ -61,7 +94,8 @@ export default function App() {
         if (b.attempts === 0 && a.attempts !== 0) return 1
         return (a.accuracy ?? 0) - (b.accuracy ?? 0)
       })
-      setSession({ week, words: ranked.slice(0, WORDS_PER_SESSION) })
+      // pool = todas las palabras de la semana, para sacar distractores creíbles
+      setSession({ week, words: ranked.slice(0, WORDS_PER_SESSION), pool: prog.items })
       setStep(0)
       setFinished(false)
     } catch (err) {
@@ -75,12 +109,16 @@ export default function App() {
     if (!session) return null
     const totalSteps = session.words.length * MODES.length
     if (step >= totalSteps) return null
+    const word = session.words[Math.floor(step / MODES.length)]
+    const mode = MODES[step % MODES.length]
     return {
-      word: session.words[Math.floor(step / MODES.length)],
-      mode: MODES[step % MODES.length],
+      word,
+      mode,
       wordIndex: Math.floor(step / MODES.length),
+      // Se recalculan solo cuando cambia el ejercicio, no en cada render
+      options: format === 'choice' ? buildOptions(word, mode, session.pool) : [],
     }
-  }, [session, step])
+  }, [session, step, format])
 
   function exitSession() {
     setSession(null)
@@ -135,6 +173,8 @@ export default function App() {
           progress={progress}
           onStart={startWeek}
           loading={loading}
+          format={format}
+          onFormat={changeFormat}
         />
       )}
 
@@ -144,9 +184,11 @@ export default function App() {
             key={`${current.word.id}-${current.mode}`}
             word={current.word}
             mode={current.mode}
+            format={format}
+            options={current.options}
             index={current.wordIndex}
             total={session.words.length}
-            onSubmit={(answer) => evaluate(current.word.id, current.mode, answer)}
+            onSubmit={(answer) => evaluate(current.word.id, current.mode, answer, format)}
             onNext={() => setStep((s) => s + 1)}
           />
           <button className="btn ghost" onClick={exitSession}>
