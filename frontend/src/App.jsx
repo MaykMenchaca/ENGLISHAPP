@@ -3,6 +3,7 @@ import { evaluate, freePractice, getLessons, getProgress, getProviders } from '.
 import LessonSelector from './components/LessonSelector.jsx'
 import ExerciseCard from './components/ExerciseCard.jsx'
 import FreePractice from './components/FreePractice.jsx'
+import Dictionary from './components/Dictionary.jsx'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -15,6 +16,21 @@ function shuffle(list) {
     ;[copy[i], copy[j]] = [copy[j], copy[i]]
   }
   return copy
+}
+
+/** Resume el progreso por sección, para las barras del selector. */
+function aggregateByWeek(items) {
+  const byWeek = {}
+  for (const item of items) {
+    const bucket = (byWeek[item.week] ||= { attempted: 0, correct: 0, total: 0 })
+    if (item.attempts > 0) bucket.attempted += 1
+    bucket.correct += item.correct
+    bucket.total += item.attempts
+  }
+  for (const bucket of Object.values(byWeek)) {
+    bucket.accuracy = bucket.total ? bucket.correct / bucket.total : null
+  }
+  return byWeek
 }
 
 /** 1 respuesta correcta + 3 distractores tomados de la misma semana. */
@@ -61,13 +77,26 @@ export default function App() {
     localStorage.setItem('tutor-provider', next)
   }
 
+  // 'engineering' | 'basic'
+  const [track, setTrack] = useState(
+    () => localStorage.getItem('tutor-track') || 'engineering'
+  )
+  const [showDictionary, setShowDictionary] = useState(false)
+
+  function changeTrack(next) {
+    setTrack(next)
+    localStorage.setItem('tutor-track', next)
+  }
+
+  // Se vuelve a cargar al cambiar de track: cada uno tiene sus propias secciones.
   useEffect(() => {
     let alive = true
+    setLoading(true)
     ;(async () => {
       try {
         const [lessons, prog, providersRes] = await Promise.all([
-          getLessons(),
-          getProgress(),
+          getLessons(track),
+          getProgress(null, track),
           getProviders(),
         ])
         if (!alive) return
@@ -79,19 +108,7 @@ export default function App() {
         setProvider((prev) =>
           prev && providersRes.options.includes(prev) ? prev : providersRes.default
         )
-
-        // Agregamos por semana para pintar las barras del selector
-        const byWeek = {}
-        for (const item of prog.items) {
-          const bucket = (byWeek[item.week] ||= { attempted: 0, correct: 0, total: 0 })
-          if (item.attempts > 0) bucket.attempted += 1
-          bucket.correct += item.correct
-          bucket.total += item.attempts
-        }
-        for (const bucket of Object.values(byWeek)) {
-          bucket.accuracy = bucket.total ? bucket.correct / bucket.total : null
-        }
-        setProgress(byWeek)
+        setProgress(aggregateByWeek(prog.items))
       } catch (err) {
         if (alive) setFatalError(err.message)
       } finally {
@@ -101,20 +118,23 @@ export default function App() {
     return () => {
       alive = false
     }
-  }, [])
+  }, [track])
 
   async function startWeek(week) {
     setLoading(true)
     setFatalError(null)
     try {
-      const prog = await getProgress(week)
-      // Prioriza lo que peor domina: primero sin intentos, luego menor precisión
-      const ranked = [...prog.items].sort((a, b) => {
-        if (a.attempts === 0 && b.attempts !== 0) return -1
-        if (b.attempts === 0 && a.attempts !== 0) return 1
-        return (a.accuracy ?? 0) - (b.accuracy ?? 0)
-      })
-      // pool = todas las palabras de la semana, para sacar distractores creíbles
+      const prog = await getProgress(week, track)
+
+      // Tres grupos por prioridad: nunca vistas, falladas, y dominadas.
+      // Se baraja DENTRO de cada grupo para que no salgan siempre las mismas
+      // palabras, sin perder el criterio de insistir en lo que peor domina.
+      const nuevas = prog.items.filter((w) => w.attempts === 0)
+      const flojas = prog.items.filter((w) => w.attempts > 0 && (w.accuracy ?? 0) < 1)
+      const dominadas = prog.items.filter((w) => w.attempts > 0 && (w.accuracy ?? 0) >= 1)
+      const ranked = [...shuffle(nuevas), ...shuffle(flojas), ...shuffle(dominadas)]
+
+      // pool = todas las palabras de la sección, para sacar distractores creíbles
       setSession({ week, words: ranked.slice(0, WORDS_PER_SESSION), pool: prog.items })
       setStep(0)
       setFinished(false)
@@ -145,20 +165,8 @@ export default function App() {
     setStep(0)
     setFinished(false)
     // Refresca las barras del selector con lo que acaba de practicar
-    getProgress()
-      .then((prog) => {
-        const byWeek = {}
-        for (const item of prog.items) {
-          const bucket = (byWeek[item.week] ||= { attempted: 0, correct: 0, total: 0 })
-          if (item.attempts > 0) bucket.attempted += 1
-          bucket.correct += item.correct
-          bucket.total += item.attempts
-        }
-        for (const bucket of Object.values(byWeek)) {
-          bucket.accuracy = bucket.total ? bucket.correct / bucket.total : null
-        }
-        setProgress(byWeek)
-      })
+    getProgress(null, track)
+      .then((prog) => setProgress(aggregateByWeek(prog.items)))
       .catch(() => {})
   }
 
@@ -185,6 +193,14 @@ export default function App() {
     )
   }
 
+  if (showDictionary) {
+    return (
+      <main className="shell">
+        <Dictionary onBack={() => setShowDictionary(false)} />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
       {!session && (
@@ -198,6 +214,9 @@ export default function App() {
           providerOptions={providerOptions}
           provider={provider}
           onProvider={changeProvider}
+          track={track}
+          onTrack={changeTrack}
+          onDictionary={() => setShowDictionary(true)}
         />
       )}
 

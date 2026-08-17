@@ -10,14 +10,33 @@ Complementa el mazo de Anki: Anki fija las palabras, esto te hace producirlas y 
 
 ## Cómo funciona
 
-Eliges un bloque (semana 1-4). Cada sesión son 5 palabras, priorizando las que peor
-dominas. De cada palabra:
+Dos pistas de vocabulario, en pestañas separadas:
 
-1. **Significado** — ¿qué significa `bottleneck`? Escribes libremente, la IA acepta paráfrasis.
-2. **Completar** — `The packaging station is the ______ of the line.` Escribes la palabra.
+- **Ingeniería** — 120 palabras en 4 bloques (TOEFL + ingeniería industrial)
+- **Inglés básico** — 200 palabras en 10 secciones temáticas: saludos, despedidas,
+  números y hora, comida, direcciones, compras, familia, verbos del día a día,
+  adjetivos y conectores
 
-Al terminar las 5, escribes 2-3 frases usando todas, y la IA te devuelve el texto
-corregido más una explicación en español.
+Cada sesión son 5 palabras, elegidas al azar dentro de tres niveles de prioridad
+(primero las que nunca has visto, luego las que fallas, al final las dominadas). De cada
+palabra:
+
+1. **Significado** — ¿qué significa `bottleneck`?
+2. **Completar** — `The packaging station is the ______ of the line.`
+
+Puedes responder de dos formas, con el interruptor de arriba:
+
+- **Opciones** — eliges entre 4. Se corrige en el servidor sin llamar a la IA: instantáneo,
+  gratis, y funciona aunque la API esté caída o sin cuota.
+- **Escribir** — escribes tu respuesta y la IA te corrige en español, aceptando paráfrasis.
+
+Después de responder aparece la **oración de ejemplo traducida al español**, para que
+puedas juzgar el resultado. Antes de responder no se muestra, porque regalaría la respuesta.
+
+Al terminar las 5, escribes 2-3 frases usando todas y la IA devuelve el texto corregido
+más la explicación.
+
+También hay un **diccionario personal** para guardar palabras que encuentres por tu cuenta.
 
 Todo se guarda en Postgres, así que el progreso es el mismo en la compu y en el celular.
 
@@ -43,6 +62,10 @@ Abre `.env` y pega:
 
 - `POSTGRES_URL` — el que acabas de copiar de Vercel
 - `GEMINI_API_KEY` — sácala en [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (empieza con `AIzaSy...`)
+- `DEEPSEEK_API_KEY` — opcional, en [platform.deepseek.com](https://platform.deepseek.com/api_keys)
+
+Puedes poner las dos claves: la app muestra un selector para cambiar de motor sobre la
+marcha, útil cuando uno se queda sin cuota.
 
 > `.env` está en `.gitignore`. Nunca se sube a GitHub.
 
@@ -53,14 +76,18 @@ pip install -r requirements.txt
 cd frontend && npm install && cd ..
 ```
 
-### 4. Cargar las 120 palabras
+### 4. Cargar las 320 palabras
 
 ```bash
-python api/seed.py
+python api/seed.py --reset
 ```
 
-Lee los archivos `Vocabulario-Semana-*.txt` de la carpeta padre. Es idempotente:
-si lo corres dos veces no duplica nada.
+Carga dos orígenes: los `Vocabulario-Semana-*.txt` de la carpeta padre (ingeniería, con
+las traducciones cruzadas desde `Traducciones-de-apoyo.txt`) y `api/data/basic_part*.json`
+(inglés básico). Reporta si alguna oración quedó sin traducción.
+
+`--reset` borra y recrea las tablas; hace falta cuando cambia el esquema. Sin ese flag
+solo inserta y actualiza, sin tocar tu progreso.
 
 ### 5. Correr en local
 
@@ -88,6 +115,7 @@ Abre `http://localhost:5173`.
    |---|---|
    | `POSTGRES_URL` | se autocompleta si conectas la base de datos al proyecto |
    | `GEMINI_API_KEY` | tu clave de Google AI Studio |
+   | `DEEPSEEK_API_KEY` | opcional, para tener el segundo motor |
    | `PROVIDER` | `gemini` |
 
 4. **Deploy**.
@@ -115,10 +143,12 @@ repetidas). Se puede cambiar con `CLAUDE_MODEL`.
 
 ```
 api/
-  index.py       rutas FastAPI (/lessons, /progress, /evaluate, /free-practice)
-  db.py          modelos SQLAlchemy: Word, Attempt
-  providers.py   call_gemini() / call_claude() con el mismo contrato
-  seed.py        carga los .txt de vocabulario a la base de datos
+  index.py       rutas FastAPI (/lessons, /progress, /evaluate,
+                 /free-practice, /providers, /dictionary)
+  db.py          modelos SQLAlchemy: Word, Attempt, DictionaryEntry
+  providers.py   call_gemini() / call_claude() / call_deepseek(), mismo contrato
+  seed.py        carga ambos orígenes de vocabulario
+  data/          basic_part1.json, basic_part2.json (200 palabras básicas)
 frontend/
   src/App.jsx    orquesta la sesión: 5 palabras x 2 modos + práctica libre
   src/api.js     llamadas al backend

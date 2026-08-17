@@ -1,13 +1,17 @@
-"""Carga las 120 palabras en la base de datos.
+"""Carga el vocabulario en la base de datos.
 
-Lee los archivos Vocabulario-Semana-N.txt que ya existen en la carpeta padre,
-con el formato:  term | Español. — English example sentence.
+Dos orígenes:
+  - Ingeniería: los archivos Vocabulario-Semana-N.txt de la carpeta padre, con formato
+    `term | Español. — English example sentence.` La traducción de cada oración se
+    cruza desde Traducciones-de-apoyo.txt (ya existía, no se reescribe).
+  - Básico: api/data/basic_part*.json, que ya trae la traducción incluida.
 
-Es idempotente: si una palabra ya existe, la actualiza en vez de duplicarla.
-Se corre una sola vez (o cuando cambie el vocabulario):
-
-    python api/seed.py
+Uso:
+    python api/seed.py            # inserta/actualiza sin tocar el resto
+    python api/seed.py --reset    # borra y recrea las tablas (pierde los intentos)
 """
+import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -22,11 +26,20 @@ try:
 except ImportError:
     pass
 
-from db import Word, get_session, init_db  # noqa: E402
+from db import TRACK_BASIC, TRACK_ENGINEERING, Word, get_session, init_db, reset_db  # noqa: E402
 
-# Los .txt viven en la carpeta que contiene al proyecto (MCP NOTEBOOK LM/)
+# Los .txt de ingeniería viven en la carpeta que contiene al proyecto
 SOURCE_DIR = ROOT.parent
-PATTERN = "Vocabulario-Semana-*.txt"
+ENGINEERING_GLOB = "Vocabulario-Semana-*.txt"
+TRANSLATIONS_FILE = SOURCE_DIR / "Traducciones-de-apoyo.txt"
+BASIC_GLOB = "basic_part*.json"
+
+ENGINEERING_SECTIONS = {
+    1: "Cimientos",
+    2: "Procesos y calidad",
+    3: "Datos y conectores",
+    4: "Gestión y abstractos",
+}
 
 
 def parse_line(line: str):
@@ -37,50 +50,150 @@ def parse_line(line: str):
     return term.strip(), spanish.strip(), sentence.strip()
 
 
-def main():
-    files = sorted(SOURCE_DIR.glob(PATTERN))
+def load_translations() -> dict:
+    """Traducciones-de-apoyo.txt: cada oración en inglés seguida de su línea indentada
+    en español. Devuelve {oración_en: oración_es}."""
+    if not TRANSLATIONS_FILE.exists():
+        print(f"  aviso: no se encontró {TRANSLATIONS_FILE.name}")
+        return {}
+
+    lines = TRANSLATIONS_FILE.read_text(encoding="utf-8").splitlines()
+    out = {}
+    for i, line in enumerate(lines):
+        if not line or line.startswith(" ") or not line.endswith("."):
+            continue
+        if i + 1 < len(lines) and lines[i + 1].startswith("   "):
+            out[line.strip()] = lines[i + 1].strip()
+    return out
+
+
+def upsert(session, track, week, section_name, term, spanish, sentence, sentence_es):
+    existing = session.query(Word).filter_by(track=track, term=term).one_or_none()
+    if existing:
+        existing.week = week
+        existing.section_name = section_name
+        existing.spanish = spanish
+        existing.sentence = sentence
+        existing.sentence_es = sentence_es
+        return False
+    session.add(
+        Word(
+            track=track,
+            week=week,
+            section_name=section_name,
+            term=term,
+            spanish=spanish,
+            sentence=sentence,
+            sentence_es=sentence_es,
+        )
+    )
+    return True
+
+
+def seed_engineering(session):
+    files = sorted(SOURCE_DIR.glob(ENGINEERING_GLOB))
     if not files:
-        print(f"No se encontraron archivos {PATTERN} en {SOURCE_DIR}")
-        return 1
+        print(f"  no se encontraron archivos {ENGINEERING_GLOB} en {SOURCE_DIR}")
+        return 0, 0, []
 
-    init_db()
-    session = get_session()
-    created = updated = skipped = 0
+    translations = load_translations()
+    created = updated = 0
+    missing = []
 
-    try:
-        for path in files:
-            match = re.search(r"Semana-(\d)", path.name)
-            if not match:
+    for path in files:
+        match = re.search(r"Semana-(\d)", path.name)
+        if not match:
+            continue
+        week = int(match.group(1))
+        section_name = ENGINEERING_SECTIONS.get(week, f"Semana {week}")
+
+        for raw in path.read_text(encoding="utf-8").splitlines():
+            raw = raw.strip()
+            if not raw:
                 continue
-            week = int(match.group(1))
+            parsed = parse_line(raw)
+            if parsed is None:
+                print(f"  linea ignorada en {path.name}: {raw[:50]}")
+                continue
 
-            for raw in path.read_text(encoding="utf-8").splitlines():
-                raw = raw.strip()
-                if not raw:
-                    continue
-                parsed = parse_line(raw)
-                if parsed is None:
-                    skipped += 1
-                    print(f"  linea ignorada en {path.name}: {raw[:50]}")
-                    continue
+            term, spanish, sentence = parsed
+            sentence_es = translations.get(sentence)
+            if not sentence_es:
+                missing.append((path.name, term, sentence))
 
-                term, spanish, sentence = parsed
-                existing = session.query(Word).filter_by(term=term).one_or_none()
-                if existing:
-                    existing.week = week
-                    existing.spanish = spanish
-                    existing.sentence = sentence
-                    updated += 1
-                else:
-                    session.add(Word(week=week, term=term, spanish=spanish, sentence=sentence))
+            if upsert(session, TRACK_ENGINEERING, week, section_name, term, spanish, sentence, sentence_es):
+                created += 1
+            else:
+                updated += 1
+
+    return created, updated, missing
+
+
+def seed_basic(session):
+    files = sorted((Path(__file__).resolve().parent / "data").glob(BASIC_GLOB))
+    if not files:
+        print(f"  no se encontraron archivos {BASIC_GLOB}")
+        return 0, 0
+
+    created = updated = 0
+    for path in files:
+        for section in json.loads(path.read_text(encoding="utf-8")):
+            for w in section["words"]:
+                if upsert(
+                    session,
+                    TRACK_BASIC,
+                    section["week"],
+                    section["section_name"],
+                    w["term"],
+                    w["spanish"],
+                    w["sentence"],
+                    w["sentence_es"],
+                ):
                     created += 1
+                else:
+                    updated += 1
+    return created, updated
 
-            print(f"{path.name}: procesado")
+
+def main():
+    parser = argparse.ArgumentParser(description="Carga el vocabulario en la base de datos")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="borra y recrea las tablas (necesario si cambió el esquema)",
+    )
+    args = parser.parse_args()
+
+    if args.reset:
+        print("Recreando tablas (se pierden los intentos guardados)...")
+        reset_db()
+    else:
+        init_db()
+
+    session = get_session()
+    try:
+        print("\n== Ingeniería ==")
+        eng_created, eng_updated, missing = seed_engineering(session)
+        print(f"  nuevas: {eng_created}   actualizadas: {eng_updated}")
+
+        print("\n== Básico ==")
+        basic_created, basic_updated = seed_basic(session)
+        print(f"  nuevas: {basic_created}   actualizadas: {basic_updated}")
 
         session.commit()
+
         total = session.query(Word).count()
-        print(f"\nNuevas: {created}   Actualizadas: {updated}   Ignoradas: {skipped}")
-        print(f"Total de palabras en la base de datos: {total}")
+        eng = session.query(Word).filter_by(track=TRACK_ENGINEERING).count()
+        basic = session.query(Word).filter_by(track=TRACK_BASIC).count()
+        print(f"\nTotal en la base de datos: {total}  ({eng} ingeniería + {basic} básico)")
+
+        if missing:
+            print(f"\nSIN traducción al español ({len(missing)}):")
+            for fname, term, sentence in missing:
+                print(f"  [{fname}] {term}: {sentence}")
+            print("  -> revisa que la oración coincida exactamente en Traducciones-de-apoyo.txt")
+        else:
+            print("Todas las oraciones tienen traducción al español.")
         return 0
     finally:
         session.close()

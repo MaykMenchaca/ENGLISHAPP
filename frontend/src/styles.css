@@ -86,6 +86,93 @@ body {
   line-height: 1.6;
 }
 
+/* ---------- pestañas Ingeniería / Básico ---------- */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2px;
+  flex-wrap: wrap;
+}
+.tabs button {
+  padding: 9px 15px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--faint);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+.tabs button:hover {
+  color: var(--soft);
+}
+.tabs button.active {
+  color: var(--accent-deep);
+  border-bottom-color: var(--accent);
+}
+.tabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.tabs .tab-side {
+  margin-left: auto;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* ---------- diccionario personal ---------- */
+.dict-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dict-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.dict-term {
+  margin: 0 0 2px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--accent-deep);
+}
+.dict-meaning {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--soft);
+}
+.dict-delete {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--faint);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+.dict-delete:hover {
+  color: var(--bad);
+  border-color: var(--bad);
+}
+.dict-delete:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ---------- interruptor Opciones / Escribir ---------- */
 .switch-row {
   display: flex;
@@ -487,7 +574,8 @@ form {
   line-height: 1.55;
   color: var(--ink);
 }
-.feedback-corrected {
+.feedback-corrected,
+.feedback-es {
   margin: 0;
   padding: 11px 13px;
   background: rgba(0, 0, 0, 0.28);
@@ -495,6 +583,10 @@ form {
   font-size: 15px;
   line-height: 1.55;
   width: 100%;
+}
+.feedback-es {
+  color: var(--soft);
+  font-style: italic;
 }
 .feedback-label {
   display: block;

@@ -1,10 +1,3 @@
-const TITLES = {
-  1: 'Cimientos',
-  2: 'Procesos y calidad',
-  3: 'Datos y conectores',
-  4: 'Gestión y abstractos',
-}
-
 const PROVIDER_LABELS = {
   gemini: 'Gemini',
   claude: 'Claude',
@@ -21,6 +14,9 @@ export default function LessonSelector({
   providerOptions,
   provider,
   onProvider,
+  track,
+  onTrack,
+  onDictionary,
 }) {
   return (
     <div className="stack">
@@ -32,6 +28,26 @@ export default function LessonSelector({
           te pido completarla dentro de una oración. Te corrijo en español.
         </p>
       </header>
+
+      <div className="tabs" role="group" aria-label="Tipo de vocabulario">
+        <button
+          type="button"
+          className={track === 'engineering' ? 'active' : ''}
+          onClick={() => onTrack('engineering')}
+        >
+          Ingeniería
+        </button>
+        <button
+          type="button"
+          className={track === 'basic' ? 'active' : ''}
+          onClick={() => onTrack('basic')}
+        >
+          Inglés básico
+        </button>
+        <button type="button" className="tab-side" onClick={onDictionary}>
+          Mi diccionario
+        </button>
+      </div>
 
       <div className="switch-row">
         <span className="switch-label">Cómo quieres responder</span>
@@ -94,7 +110,7 @@ export default function LessonSelector({
               disabled={loading}
             >
               <span className="lesson-num">Bloque {w.week}</span>
-              <span className="lesson-title">{TITLES[w.week] || `Semana ${w.week}`}</span>
+              <span className="lesson-title">{w.section_name}</span>
               <span className="lesson-meta">{w.count} palabras</span>
               <span className="bar" aria-hidden="true">
                 <span className="bar-fill" style={{ width: `${pct}%` }} />

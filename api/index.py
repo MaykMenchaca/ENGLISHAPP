@@ -22,7 +22,14 @@ except ImportError:
     pass
 
 try:  # ejecutado como paquete (uvicorn api.index:app)
-    from .db import Attempt, Word, get_session, init_db
+    from .db import (
+        TRACK_ENGINEERING,
+        Attempt,
+        DictionaryEntry,
+        Word,
+        get_session,
+        init_db,
+    )
     from .providers import (
         DEFAULT_PROVIDER,
         PROVIDERS,
@@ -32,7 +39,14 @@ try:  # ejecutado como paquete (uvicorn api.index:app)
         extract_json,
     )
 except ImportError:  # ejecutado como script suelto (Vercel)
-    from db import Attempt, Word, get_session, init_db
+    from db import (
+        TRACK_ENGINEERING,
+        Attempt,
+        DictionaryEntry,
+        Word,
+        get_session,
+        init_db,
+    )
     from providers import (
         DEFAULT_PROVIDER,
         PROVIDERS,
@@ -120,29 +134,43 @@ def providers():
 
 
 @router.get("/lessons")
-def lessons():
+def lessons(track: str = TRACK_ENGINEERING):
     session = get_session()
     try:
-        rows = session.execute(select(Word).order_by(Word.week, Word.id)).scalars().all()
+        rows = (
+            session.execute(
+                select(Word).where(Word.track == track).order_by(Word.week, Word.id)
+            )
+            .scalars()
+            .all()
+        )
         weeks = {}
+        names = {}
         for word in rows:
             weeks.setdefault(word.week, []).append(word.as_dict())
+            names[word.week] = word.section_name
         return {
+            "track": track,
             "weeks": [
-                {"week": w, "count": len(words), "words": words}
+                {
+                    "week": w,
+                    "section_name": names.get(w, f"Sección {w}"),
+                    "count": len(words),
+                    "words": words,
+                }
                 for w, words in sorted(weeks.items())
-            ]
+            ],
         }
     finally:
         session.close()
 
 
 @router.get("/progress")
-def progress(week: Optional[int] = None):
+def progress(week: Optional[int] = None, track: str = TRACK_ENGINEERING):
     """Aciertos y fallos por palabra, para priorizar lo que peor domina."""
     session = get_session()
     try:
-        query = select(Word)
+        query = select(Word).where(Word.track == track)
         if week is not None:
             query = query.where(Word.week == week)
         words = session.execute(query.order_by(Word.id)).scalars().all()
@@ -219,7 +247,12 @@ def evaluate(payload: EvaluateRequest):
                 )
             )
             session.commit()
-            return {"correct": correct, "feedback": feedback, "term": word.term}
+            return {
+                "correct": correct,
+                "feedback": feedback,
+                "term": word.term,
+                "sentence_es": word.sentence_es,
+            }
 
         # --- Texto libre: aquí sí evalúa el LLM ---
         if payload.mode == "meaning":
@@ -260,7 +293,12 @@ def evaluate(payload: EvaluateRequest):
         )
         session.commit()
 
-        return {"correct": correct, "feedback": feedback, "term": word.term}
+        return {
+            "correct": correct,
+            "feedback": feedback,
+            "term": word.term,
+            "sentence_es": word.sentence_es,
+        }
     finally:
         session.close()
 
@@ -312,6 +350,64 @@ def free_practice(payload: FreePracticeRequest):
         session.commit()
 
         return {"correct": correct, "corrected": corrected, "feedback": feedback}
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------- diccionario personal
+
+
+class DictionaryRequest(BaseModel):
+    term: str
+    meaning: str
+    notes: Optional[str] = None
+
+
+@router.get("/dictionary")
+def dictionary_list():
+    session = get_session()
+    try:
+        rows = (
+            session.execute(select(DictionaryEntry).order_by(DictionaryEntry.id.desc()))
+            .scalars()
+            .all()
+        )
+        return {"items": [e.as_dict() for e in rows]}
+    finally:
+        session.close()
+
+
+@router.post("/dictionary")
+def dictionary_add(payload: DictionaryRequest):
+    term = payload.term.strip()
+    meaning = payload.meaning.strip()
+    if not term or not meaning:
+        raise HTTPException(status_code=400, detail="La palabra y su significado son obligatorios")
+
+    session = get_session()
+    try:
+        entry = DictionaryEntry(
+            term=term,
+            meaning=meaning,
+            notes=(payload.notes or "").strip() or None,
+        )
+        session.add(entry)
+        session.commit()
+        return entry.as_dict()
+    finally:
+        session.close()
+
+
+@router.delete("/dictionary/{entry_id}")
+def dictionary_delete(entry_id: int):
+    session = get_session()
+    try:
+        entry = session.get(DictionaryEntry, entry_id)
+        if entry is None:
+            raise HTTPException(status_code=404, detail="Entrada no encontrada")
+        session.delete(entry)
+        session.commit()
+        return {"deleted": entry_id}
     finally:
         session.close()
 

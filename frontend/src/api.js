@@ -18,10 +18,25 @@ async function request(path, options = {}) {
   return res.json()
 }
 
-export const getLessons = () => request('/api/lessons')
+export const getLessons = (track = 'engineering') =>
+  request(`/api/lessons?track=${track}`)
 
-export const getProgress = (week) =>
-  request(week ? `/api/progress?week=${week}` : '/api/progress')
+export const getProgress = (week, track = 'engineering') =>
+  request(
+    week ? `/api/progress?track=${track}&week=${week}` : `/api/progress?track=${track}`
+  )
+
+// --- diccionario personal ---
+export const getDictionary = () => request('/api/dictionary')
+
+export const addDictionaryEntry = (term, meaning) =>
+  request('/api/dictionary', {
+    method: 'POST',
+    body: JSON.stringify({ term, meaning }),
+  })
+
+export const deleteDictionaryEntry = (id) =>
+  request(`/api/dictionary/${id}`, { method: 'DELETE' })
 
 // { default: 'gemini' | null, options: ['gemini', 'deepseek', ...] }
 // "options" solo trae los que tienen clave puesta en el servidor.

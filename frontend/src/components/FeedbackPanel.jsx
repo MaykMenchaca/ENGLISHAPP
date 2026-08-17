@@ -14,6 +14,14 @@ export default function FeedbackPanel({ result, onNext, nextLabel = 'Siguiente' 
 
       <p className="feedback-text">{result.feedback}</p>
 
+      {/* Solo aquí, ya respondido: durante el ejercicio regalaría la respuesta. */}
+      {result.sentence_es && (
+        <p className="feedback-es">
+          <span className="feedback-label">La oración en español</span>
+          {result.sentence_es}
+        </p>
+      )}
+
       <button className="btn primary" onClick={onNext} autoFocus>
         {nextLabel}
       </button>
