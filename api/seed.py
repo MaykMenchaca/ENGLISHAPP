@@ -1,10 +1,13 @@
 """Carga el vocabulario en la base de datos.
 
-Dos orígenes:
-  - Ingeniería: los archivos Vocabulario-Semana-N.txt de la carpeta padre, con formato
-    `term | Español. — English example sentence.` La traducción de cada oración se
-    cruza desde Traducciones-de-apoyo.txt (ya existía, no se reescribe).
-  - Básico: api/data/basic_part*.json, que ya trae la traducción incluida.
+Tres orígenes:
+  - Ingeniería (semanas 1-4): los Vocabulario-Semana-N.txt de la carpeta padre, con
+    formato `term | Español. — English example sentence.` La traducción de cada oración
+    se cruza desde Traducciones-de-apoyo.txt (ya existía, no se reescribe).
+  - Ingeniería / equipos de planta (semanas 5-10): api/data/equipment_part*.json.
+  - Básico: api/data/basic_part*.json.
+  Los dos últimos usan el mismo formato JSON y ya traen la traducción incluida, así que
+  comparten la misma función de carga — solo cambia a qué track van.
 
 Uso:
     python api/seed.py            # inserta/actualiza sin tocar el resto
@@ -33,6 +36,7 @@ SOURCE_DIR = ROOT.parent
 ENGINEERING_GLOB = "Vocabulario-Semana-*.txt"
 TRANSLATIONS_FILE = SOURCE_DIR / "Traducciones-de-apoyo.txt"
 BASIC_GLOB = "basic_part*.json"
+EQUIPMENT_GLOB = "equipment_part*.json"
 
 ENGINEERING_SECTIONS = {
     1: "Cimientos",
@@ -129,10 +133,13 @@ def seed_engineering(session):
     return created, updated, missing
 
 
-def seed_basic(session):
-    files = sorted((Path(__file__).resolve().parent / "data").glob(BASIC_GLOB))
+def seed_json_pack(session, glob_pattern: str, track: str):
+    """Carga un paquete de JSON con el formato de basic_part*.json (semanas ya
+    numeradas, traducción incluida) hacia el track que se le indique. Usado tanto
+    para el vocabulario básico como para el de equipos de planta."""
+    files = sorted((Path(__file__).resolve().parent / "data").glob(glob_pattern))
     if not files:
-        print(f"  no se encontraron archivos {BASIC_GLOB}")
+        print(f"  no se encontraron archivos {glob_pattern}")
         return 0, 0
 
     created = updated = 0
@@ -141,7 +148,7 @@ def seed_basic(session):
             for w in section["words"]:
                 if upsert(
                     session,
-                    TRACK_BASIC,
+                    track,
                     section["week"],
                     section["section_name"],
                     w["term"],
@@ -172,12 +179,16 @@ def main():
 
     session = get_session()
     try:
-        print("\n== Ingeniería ==")
+        print("\n== Ingeniería (TOEFL, semanas 1-4) ==")
         eng_created, eng_updated, missing = seed_engineering(session)
         print(f"  nuevas: {eng_created}   actualizadas: {eng_updated}")
 
+        print("\n== Ingeniería (equipos de planta, semanas 5-10) ==")
+        equip_created, equip_updated = seed_json_pack(session, EQUIPMENT_GLOB, TRACK_ENGINEERING)
+        print(f"  nuevas: {equip_created}   actualizadas: {equip_updated}")
+
         print("\n== Básico ==")
-        basic_created, basic_updated = seed_basic(session)
+        basic_created, basic_updated = seed_json_pack(session, BASIC_GLOB, TRACK_BASIC)
         print(f"  nuevas: {basic_created}   actualizadas: {basic_updated}")
 
         session.commit()

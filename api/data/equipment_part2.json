@@ -1,0 +1,69 @@
+[
+  {
+    "week": 8,
+    "section_name": "Instrumentación y control",
+    "words": [
+      { "term": "analyzer/detector", "spanish": "Analizador/Detector.", "sentence": "The gas analyzer/detector triggered an alarm during the leak test.", "sentence_es": "El analizador/detector de gas activó una alarma durante la prueba de fugas." },
+      { "term": "beacon sounder", "spanish": "Baliza sonora.", "sentence": "The beacon sounder warns workers before the crane moves.", "sentence_es": "La baliza sonora advierte a los trabajadores antes de que la grúa se mueva." },
+      { "term": "camera", "spanish": "Cámara.", "sentence": "The camera monitors the loading area at all times.", "sentence_es": "La cámara vigila el área de carga en todo momento." },
+      { "term": "flowmeter", "spanish": "Medidor de flujo (caudalímetro).", "sentence": "The flowmeter records how much liquid passes through the line.", "sentence_es": "El medidor de flujo registra cuánto líquido pasa por la línea." },
+      { "term": "level meter", "spanish": "Medidor de nivel.", "sentence": "The level meter shows how full the tank is.", "sentence_es": "El medidor de nivel muestra qué tan lleno está el tanque." },
+      { "term": "pressure meter", "spanish": "Medidor de presión.", "sentence": "The pressure meter reads slightly above normal today.", "sentence_es": "El medidor de presión marca ligeramente por encima de lo normal hoy." },
+      { "term": "scanner", "spanish": "Escáner.", "sentence": "The scanner checks each pallet before it leaves the warehouse.", "sentence_es": "El escáner revisa cada tarima antes de que salga del almacén." },
+      { "term": "temperature meter", "spanish": "Medidor de temperatura.", "sentence": "The temperature meter alerts the operator if the reactor overheats.", "sentence_es": "El medidor de temperatura alerta al operador si el reactor se sobrecalienta." },
+      { "term": "vibration transducer", "spanish": "Transductor de vibración.", "sentence": "The vibration transducer detects early signs of pump failure.", "sentence_es": "El transductor de vibración detecta señales tempranas de falla en la bomba." },
+      { "term": "switch", "spanish": "Interruptor.", "sentence": "Turn off the switch before opening the panel.", "sentence_es": "Apaga el interruptor antes de abrir el panel." },
+      { "term": "pushbutton", "spanish": "Pulsador.", "sentence": "Press the red pushbutton to stop the line immediately.", "sentence_es": "Presiona el pulsador rojo para detener la línea de inmediato." },
+      { "term": "control system", "spanish": "Sistema de control.", "sentence": "The control system logs every alarm automatically.", "sentence_es": "El sistema de control registra cada alarma automáticamente." },
+      { "term": "DC", "spanish": "Corriente directa (CD).", "sentence": "The backup battery supplies DC power to the instruments.", "sentence_es": "La batería de respaldo suministra corriente directa a los instrumentos." },
+      { "term": "protection device", "spanish": "Dispositivo de protección.", "sentence": "Every motor has its own protection device against overload.", "sentence_es": "Cada motor tiene su propio dispositivo de protección contra sobrecarga." },
+      { "term": "GIS", "spanish": "Subestación aislada en gas, SF6 (220 kV / 110 kV).", "sentence": "The GIS substation reduces the footprint compared to open air designs.", "sentence_es": "La subestación GIS reduce el espacio requerido en comparación con los diseños al aire libre." },
+      { "term": "grounding", "spanish": "Puesta a tierra.", "sentence": "Proper grounding protects the equipment from electrical surges.", "sentence_es": "Una puesta a tierra adecuada protege al equipo de sobrecargas eléctricas." }
+    ]
+  },
+  {
+    "week": 9,
+    "section_name": "Eléctrico y seguridad",
+    "words": [
+      { "term": "capacitor", "spanish": "Capacitor (condensador).", "sentence": "The capacitor improves the power factor of the motor.", "sentence_es": "El capacitor mejora el factor de potencia del motor." },
+      { "term": "electrical heat tracing", "spanish": "Traceado eléctrico.", "sentence": "Electrical heat tracing keeps the pipe from freezing in winter.", "sentence_es": "El traceado eléctrico evita que la tubería se congele en invierno." },
+      { "term": "electrical heater", "spanish": "Calentador eléctrico.", "sentence": "The electrical heater warms the tank before start-up.", "sentence_es": "El calentador eléctrico calienta el tanque antes del arranque." },
+      { "term": "panel", "spanish": "Panel (tablero eléctrico).", "sentence": "Only certified technicians can open the electrical panel.", "sentence_es": "Solo técnicos certificados pueden abrir el panel eléctrico." },
+      { "term": "switchgear", "spanish": "Equipo de conmutación (switchgear).", "sentence": "The switchgear distributes power to the whole plant.", "sentence_es": "El switchgear distribuye energía a toda la planta." },
+      { "term": "transformer", "spanish": "Transformador.", "sentence": "The transformer steps down the voltage for plant use.", "sentence_es": "El transformador reduce el voltaje para uso de la planta." },
+      { "term": "UPS", "spanish": "Sistema de alimentación ininterrumpida (UPS).", "sentence": "The UPS keeps the control system running during a blackout.", "sentence_es": "El UPS mantiene el sistema de control funcionando durante un apagón." },
+      { "term": "light", "spanish": "Luz.", "sentence": "Replace the light in the stairwell.", "sentence_es": "Cambia la luz de la escalera." },
+      { "term": "lighting", "spanish": "Iluminación.", "sentence": "Emergency lighting turns on automatically when power fails.", "sentence_es": "La iluminación de emergencia se enciende automáticamente cuando falla la energía." },
+      { "term": "telecom systems", "spanish": "Sistemas de telecomunicaciones.", "sentence": "Telecom systems connect the plant with the central office.", "sentence_es": "Los sistemas de telecomunicaciones conectan la planta con la oficina central." },
+      { "term": "firefighting", "spanish": "Sistema contra incendios.", "sentence": "The firefighting system is tested every month.", "sentence_es": "El sistema contra incendios se prueba cada mes." },
+      { "term": "eyewash", "spanish": "Lavaojos.", "sentence": "Use the eyewash immediately if chemicals splash your face.", "sentence_es": "Usa el lavaojos de inmediato si te salpican químicos en la cara." },
+      { "term": "safety shower", "spanish": "Regadera de seguridad.", "sentence": "The safety shower is located next to the chemical storage area.", "sentence_es": "La regadera de seguridad está ubicada junto al área de almacenamiento de químicos." },
+      { "term": "cabinet", "spanish": "Gabinete.", "sentence": "Store the spare parts inside the locked cabinet.", "sentence_es": "Guarda las refacciones dentro del gabinete con llave." },
+      { "term": "HVAC", "spanish": "Sistema de calefacción, ventilación y aire acondicionado (HVAC).", "sentence": "The HVAC system keeps the control room at a stable temperature.", "sentence_es": "El sistema HVAC mantiene la sala de control a una temperatura estable." },
+      { "term": "ejector", "spanish": "Eyector.", "sentence": "The ejector removes air from the vacuum system.", "sentence_es": "El eyector extrae el aire del sistema de vacío." }
+    ]
+  },
+  {
+    "week": 10,
+    "section_name": "Manejo de materiales e instalaciones",
+    "words": [
+      { "term": "bagging machine", "spanish": "Máquina embolsadora.", "sentence": "The bagging machine fills and seals fifty bags per minute.", "sentence_es": "La máquina embolsadora llena y sella cincuenta sacos por minuto." },
+      { "term": "drum filling", "spanish": "Llenado de tambores.", "sentence": "Drum filling stopped early due to a level sensor fault.", "sentence_es": "El llenado de tambores se detuvo antes de tiempo por una falla en el sensor de nivel." },
+      { "term": "film covering machine", "spanish": "Máquina cubridora de película.", "sentence": "The film covering machine wraps each pallet before shipping.", "sentence_es": "La máquina cubridora de película envuelve cada tarima antes del envío." },
+      { "term": "loading arms", "spanish": "Brazos de carga.", "sentence": "The loading arms connect the truck to the storage tank.", "sentence_es": "Los brazos de carga conectan el camión con el tanque de almacenamiento." },
+      { "term": "truck", "spanish": "Camión.", "sentence": "The truck arrives every morning with new raw material.", "sentence_es": "El camión llega cada mañana con materia prima nueva." },
+      { "term": "truck loading/unloading station", "spanish": "Estación de carga/descarga de camiones.", "sentence": "Drivers must sign in at the truck loading/unloading station.", "sentence_es": "Los conductores deben registrarse en la estación de carga/descarga de camiones." },
+      { "term": "weighing", "spanish": "Pesaje.", "sentence": "Weighing confirms that each truck carries the correct amount.", "sentence_es": "El pesaje confirma que cada camión lleva la cantidad correcta." },
+      { "term": "cleaning system", "spanish": "Sistema de limpieza.", "sentence": "The cleaning system rinses the tank between batches.", "sentence_es": "El sistema de limpieza enjuaga el tanque entre lotes." },
+      { "term": "sealing system", "spanish": "Sistema de sellado.", "sentence": "The sealing system prevents leaks around the shaft.", "sentence_es": "El sistema de sellado evita fugas alrededor del eje." },
+      { "term": "package", "spanish": "Paquete.", "sentence": "Each package is labeled before leaving the warehouse.", "sentence_es": "Cada paquete se etiqueta antes de salir del almacén." },
+      { "term": "packing", "spanish": "Empaque.", "sentence": "The packing protects the product during transport.", "sentence_es": "El empaque protege al producto durante el transporte." },
+      { "term": "gangway", "spanish": "Pasarela de acceso.", "sentence": "Workers use the gangway to reach the top of the tank.", "sentence_es": "Los trabajadores usan la pasarela de acceso para llegar a la parte superior del tanque." },
+      { "term": "lifting door", "spanish": "Puerta de elevación.", "sentence": "The lifting door opens automatically when the truck approaches.", "sentence_es": "La puerta de elevación se abre automáticamente cuando el camión se acerca." },
+      { "term": "lifting platform/table", "spanish": "Plataforma/Mesa elevadora.", "sentence": "The lifting platform/table raises the operator to the valve level.", "sentence_es": "La plataforma/mesa elevadora sube al operador hasta el nivel de la válvula." },
+      { "term": "filters/strainers/coalescer", "spanish": "Filtros/Coladores/Coalescedor.", "sentence": "Filters/strainers/coalescer units remove solids and water from the gas.", "sentence_es": "Las unidades de filtros/coladores/coalescedor eliminan sólidos y agua del gas." },
+      { "term": "vacuum ejector systems", "spanish": "Sistemas eyectores de vacío.", "sentence": "Vacuum ejector systems maintain low pressure inside the column.", "sentence_es": "Los sistemas eyectores de vacío mantienen baja presión dentro de la columna." },
+      { "term": "flare", "spanish": "Antorcha (quemador de gases).", "sentence": "The flare burns off excess gas safely.", "sentence_es": "La antorcha quema de forma segura el gas excedente." }
+    ]
+  }
+]

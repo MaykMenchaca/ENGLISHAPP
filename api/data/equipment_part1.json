@@ -1,0 +1,70 @@
+[
+  {
+    "week": 5,
+    "section_name": "Válvulas y control de flujo",
+    "words": [
+      { "term": "breathing valve", "spanish": "Válvula de respiración (venteo de tanques).", "sentence": "The tank breathing valve releases pressure during filling.", "sentence_es": "La válvula de respiración del tanque libera presión durante el llenado." },
+      { "term": "control valve", "spanish": "Válvula de control.", "sentence": "The control valve adjusts flow automatically based on the setpoint.", "sentence_es": "La válvula de control ajusta el flujo automáticamente según el punto de referencia." },
+      { "term": "emergency relief valve", "spanish": "Válvula de alivio de emergencia.", "sentence": "The emergency relief valve opens if pressure exceeds the safe limit.", "sentence_es": "La válvula de alivio de emergencia se abre si la presión supera el límite seguro." },
+      { "term": "manual valve", "spanish": "Válvula manual.", "sentence": "Close the manual valve before starting maintenance.", "sentence_es": "Cierra la válvula manual antes de iniciar el mantenimiento." },
+      { "term": "motor operated valve", "spanish": "Válvula operada por motor.", "sentence": "The motor operated valve can be controlled from the control room.", "sentence_es": "La válvula operada por motor se puede controlar desde la sala de control." },
+      { "term": "pressure regulator", "spanish": "Regulador de presión (PCV).", "sentence": "The pressure regulator keeps the line below the design limit.", "sentence_es": "El regulador de presión mantiene la línea por debajo del límite de diseño." },
+      { "term": "PSV", "spanish": "Válvula de seguridad de presión (PSV).", "sentence": "The PSV lifted when the vessel pressure spiked.", "sentence_es": "La PSV se abrió cuando la presión del recipiente se disparó." },
+      { "term": "restriction orifice", "spanish": "Orificio de restricción.", "sentence": "A restriction orifice limits the flow rate downstream.", "sentence_es": "Un orificio de restricción limita el caudal aguas abajo." },
+      { "term": "rupture disc", "spanish": "Disco de ruptura.", "sentence": "The rupture disc protects the vessel from overpressure.", "sentence_es": "El disco de ruptura protege al recipiente del exceso de presión." },
+      { "term": "reducer", "spanish": "Reductor (accesorio de tubería).", "sentence": "A reducer connects the large pipe to the smaller line.", "sentence_es": "Un reductor conecta la tubería grande con la línea más pequeña." },
+      { "term": "quick release hook", "spanish": "Gancho de liberación rápida.", "sentence": "The quick release hook lets the operator disconnect the hose fast.", "sentence_es": "El gancho de liberación rápida permite al operador desconectar la manguera rápidamente." },
+      { "term": "pigging", "spanish": "Diablo (limpieza de tubería).", "sentence": "Pigging removes deposits from inside the pipeline.", "sentence_es": "El diablo (pigging) elimina depósitos del interior del oleoducto." },
+      { "term": "steam trap", "spanish": "Trampa de vapor.", "sentence": "The steam trap drains condensate from the line.", "sentence_es": "La trampa de vapor drena el condensado de la línea." },
+      { "term": "flame arrestor", "spanish": "Arrestallamas.", "sentence": "The flame arrestor stops fire from entering the tank vent.", "sentence_es": "El arrestallamas evita que el fuego entre por el venteo del tanque." },
+      { "term": "silencer", "spanish": "Silenciador.", "sentence": "The silencer reduces noise from the vent stack.", "sentence_es": "El silenciador reduce el ruido de la chimenea de venteo." },
+      { "term": "piping", "spanish": "Tubería.", "sentence": "New piping was installed to connect the two units.", "sentence_es": "Se instaló tubería nueva para conectar las dos unidades." },
+      { "term": "hose", "spanish": "Manguera.", "sentence": "Use the correct hose for chemical transfer.", "sentence_es": "Usa la manguera correcta para la transferencia de químicos." }
+    ]
+  },
+  {
+    "week": 6,
+    "section_name": "Equipo rotativo y de izaje",
+    "words": [
+      { "term": "agitator/mixer", "spanish": "Agitador/Mezclador.", "sentence": "The agitator/mixer keeps the solution homogeneous.", "sentence_es": "El agitador/mezclador mantiene la solución homogénea." },
+      { "term": "centrifugal dryer", "spanish": "Secador centrífugo.", "sentence": "The centrifugal dryer removes moisture from the solid product.", "sentence_es": "El secador centrífugo elimina la humedad del producto sólido." },
+      { "term": "compressor", "spanish": "Compresor.", "sentence": "The compressor raises the gas pressure before it enters the pipeline.", "sentence_es": "El compresor eleva la presión del gas antes de entrar al gasoducto." },
+      { "term": "conveyor", "spanish": "Transportador (banda transportadora).", "sentence": "The conveyor moves raw material to the mixer.", "sentence_es": "El transportador lleva la materia prima hacia el mezclador." },
+      { "term": "crane", "spanish": "Grúa.", "sentence": "The crane lifted the new pump into place.", "sentence_es": "La grúa levantó la bomba nueva hasta su lugar." },
+      { "term": "elevator", "spanish": "Elevador.", "sentence": "The elevator carries bags to the upper floor.", "sentence_es": "El elevador lleva los sacos al piso superior." },
+      { "term": "extruder", "spanish": "Extrusor.", "sentence": "The extruder shapes the melted plastic into pellets.", "sentence_es": "El extrusor da forma al plástico fundido convirtiéndolo en pellets." },
+      { "term": "fan", "spanish": "Ventilador.", "sentence": "The fan pushes cooling air through the exchanger.", "sentence_es": "El ventilador impulsa aire de enfriamiento a través del intercambiador." },
+      { "term": "feeder", "spanish": "Alimentador.", "sentence": "The feeder controls how much material enters the process.", "sentence_es": "El alimentador controla cuánto material entra al proceso." },
+      { "term": "fork lift", "spanish": "Montacargas.", "sentence": "The fork lift moved the pallets into the warehouse.", "sentence_es": "El montacargas movió las tarimas hacia el almacén." },
+      { "term": "generator", "spanish": "Generador.", "sentence": "The backup generator starts automatically during a power outage.", "sentence_es": "El generador de respaldo arranca automáticamente durante un corte de energía." },
+      { "term": "hoist", "spanish": "Polipasto.", "sentence": "Use the hoist to lift the motor for inspection.", "sentence_es": "Usa el polipasto para levantar el motor para su inspección." },
+      { "term": "motors", "spanish": "Motores.", "sentence": "All motors are inspected every six months.", "sentence_es": "Todos los motores se inspeccionan cada seis meses." },
+      { "term": "pump", "spanish": "Bomba.", "sentence": "The pump transfers the liquid to the storage tank.", "sentence_es": "La bomba transfiere el líquido al tanque de almacenamiento." },
+      { "term": "turbine", "spanish": "Turbina.", "sentence": "The turbine converts steam pressure into mechanical energy.", "sentence_es": "La turbina convierte la presión del vapor en energía mecánica." },
+      { "term": "VSD", "spanish": "Variador de velocidad (VSD).", "sentence": "The VSD adjusts the motor speed to save energy.", "sentence_es": "El variador de velocidad (VSD) ajusta la velocidad del motor para ahorrar energía." },
+      { "term": "pelletizer", "spanish": "Peletizadora.", "sentence": "The pelletizer forms the plastic strands into small pellets.", "sentence_es": "La peletizadora convierte los hilos de plástico en pequeños pellets." }
+    ]
+  },
+  {
+    "week": 7,
+    "section_name": "Recipientes y transferencia de calor",
+    "words": [
+      { "term": "boiler", "spanish": "Caldera.", "sentence": "The boiler generates steam for the whole plant.", "sentence_es": "La caldera genera vapor para toda la planta." },
+      { "term": "chiller", "spanish": "Enfriador (chiller).", "sentence": "The chiller cools the process water before reuse.", "sentence_es": "El chiller enfría el agua de proceso antes de reutilizarla." },
+      { "term": "column/tower", "spanish": "Columna/Torre.", "sentence": "The distillation column/tower separates the mixture by boiling point.", "sentence_es": "La columna/torre de destilación separa la mezcla según su punto de ebullición." },
+      { "term": "furnace", "spanish": "Horno.", "sentence": "The furnace heats the feed before the reaction.", "sentence_es": "El horno calienta la alimentación antes de la reacción." },
+      { "term": "heat exchanger", "spanish": "Intercambiador de calor.", "sentence": "The heat exchanger transfers heat from the hot stream to the cold one.", "sentence_es": "El intercambiador de calor transfiere calor de la corriente caliente a la fría." },
+      { "term": "reactor", "spanish": "Reactor.", "sentence": "The reactor operates at high temperature and pressure.", "sentence_es": "El reactor opera a alta temperatura y presión." },
+      { "term": "tank", "spanish": "Tanque.", "sentence": "The tank stores raw material for three days of production.", "sentence_es": "El tanque almacena materia prima para tres días de producción." },
+      { "term": "tray", "spanish": "Bandeja.", "sentence": "Each tray inside the column improves the separation.", "sentence_es": "Cada bandeja dentro de la columna mejora la separación." },
+      { "term": "vessel/drum", "spanish": "Recipiente/Tambor.", "sentence": "The vessel/drum was inspected for corrosion during the shutdown.", "sentence_es": "El recipiente/tambor fue inspeccionado por corrosión durante el paro." },
+      { "term": "stack", "spanish": "Chimenea.", "sentence": "Emissions are released through the stack after treatment.", "sentence_es": "Las emisiones se liberan por la chimenea después del tratamiento." },
+      { "term": "demister", "spanish": "Desempañador (eliminador de niebla).", "sentence": "The demister removes liquid droplets from the gas stream.", "sentence_es": "El desempañador elimina las gotas de líquido de la corriente de gas." },
+      { "term": "quench oil cyclone", "spanish": "Ciclón de aceite de temple.", "sentence": "The quench oil cyclone separates solids from the recovered oil.", "sentence_es": "El ciclón de aceite de temple separa los sólidos del aceite recuperado." },
+      { "term": "dryer", "spanish": "Secador.", "sentence": "The dryer reduces the moisture content before packaging.", "sentence_es": "El secador reduce el contenido de humedad antes del empaque." },
+      { "term": "flaker", "spanish": "Escamadora.", "sentence": "The flaker cools and cuts the product into flakes.", "sentence_es": "La escamadora enfría y corta el producto en escamas." },
+      { "term": "flattener", "spanish": "Aplanadora.", "sentence": "The flattener presses the material into a uniform sheet.", "sentence_es": "La aplanadora presiona el material hasta formar una lámina uniforme." },
+      { "term": "diesel engine", "spanish": "Motor diésel.", "sentence": "The diesel engine powers the emergency pump.", "sentence_es": "El motor diésel impulsa la bomba de emergencia." }
+    ]
+  }
+]
