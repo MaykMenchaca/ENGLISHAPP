@@ -251,30 +251,40 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 }
+/* .lesson-card es el contenedor (ya no <button>: no se puede anidar un botón
+   dentro de otro, y ahora hay dos: estudiar y jugar). .lesson-main es el botón
+   grande de estudiar; conserva el aspecto que .lesson-card tenía antes. */
 .lesson-card {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 18px 18px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+  overflow: hidden;
   transition: border-color 140ms ease, transform 140ms ease, background 140ms ease;
 }
-.lesson-card:hover:not(:disabled) {
+.lesson-card:hover {
   border-color: var(--accent);
   background: var(--surface-2);
   transform: translateY(-1px);
 }
-.lesson-card:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.lesson-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px 18px 14px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
-.lesson-card:disabled {
+.lesson-main:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.lesson-main:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -283,21 +293,47 @@ body {
    <span> hermanos, así que reordenar por :first-of-type no sirve (eso mira la
    etiqueta, no la clase, y las cinco son <span>). Se ancla por posición real
    con :nth-child en su lugar. */
-.lesson-card > :nth-child(1) {
+.lesson-main > :nth-child(1) {
   order: 1;
 }
-.lesson-card > :nth-child(3) {
+.lesson-main > :nth-child(3) {
   order: 2;
   margin-bottom: 2px;
 }
-.lesson-card > :nth-child(2) {
+.lesson-main > :nth-child(2) {
   order: 3;
 }
-.lesson-card > :nth-child(4) {
+.lesson-main > :nth-child(4) {
   order: 4;
 }
-.lesson-card > :nth-child(5) {
+.lesson-main > :nth-child(5) {
   order: 5;
+}
+
+.lesson-play {
+  padding: 10px 18px;
+  border: none;
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--accent-deep);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.lesson-play:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.lesson-play:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.lesson-play:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .lesson-num {
@@ -638,8 +674,88 @@ code {
   font-size: 13px;
 }
 
+/* ---------- juego de emparejar ---------- */
+.match-timer {
+  font-variant-numeric: tabular-nums;
+}
+.match-best {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--faint);
+}
+.match-best strong {
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (min-width: 480px) {
+  .match-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.match-tile {
+  min-height: 64px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, transform 120ms ease,
+    opacity 200ms ease;
+}
+.match-tile:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.match-tile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.match-tile.picked {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  color: var(--accent-deep);
+}
+.match-tile.wrong {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  color: var(--bad);
+  animation: match-shake 300ms ease;
+}
+.match-tile.solved {
+  border-color: var(--good);
+  background: var(--good-bg);
+  color: var(--good);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.85);
+}
+
+@keyframes match-shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+  .match-tile.wrong {
+    animation: none;
   }
 }

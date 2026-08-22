@@ -18,6 +18,7 @@ export default function LessonSelector({
   onTrack,
   onDictionary,
   onLogout,
+  onPlay,
 }) {
   return (
     <div className="stack">
@@ -107,23 +108,33 @@ export default function LessonSelector({
           const stats = progress[w.week] || { attempted: 0, accuracy: null }
           const pct = w.count ? Math.round((stats.attempted / w.count) * 100) : 0
           return (
-            <button
-              key={w.week}
-              className="lesson-card"
-              onClick={() => onStart(w.week)}
-              disabled={loading}
-            >
-              <span className="lesson-num">Bloque {w.week}</span>
-              <span className="lesson-title">{w.section_name}</span>
-              <span className="lesson-meta">{w.count} palabras</span>
-              <span className="bar" aria-hidden="true">
-                <span className="bar-fill" style={{ width: `${pct}%` }} />
-              </span>
-              <span className="lesson-meta">
-                {stats.attempted} vistas
-                {stats.accuracy !== null && ` · ${Math.round(stats.accuracy * 100)}% acierto`}
-              </span>
-            </button>
+            <div key={w.week} className="lesson-card">
+              <button
+                type="button"
+                className="lesson-main"
+                onClick={() => onStart(w.week)}
+                disabled={loading}
+              >
+                <span className="lesson-num">Bloque {w.week}</span>
+                <span className="lesson-title">{w.section_name}</span>
+                <span className="lesson-meta">{w.count} palabras</span>
+                <span className="bar" aria-hidden="true">
+                  <span className="bar-fill" style={{ width: `${pct}%` }} />
+                </span>
+                <span className="lesson-meta">
+                  {stats.attempted} vistas
+                  {stats.accuracy !== null && ` · ${Math.round(stats.accuracy * 100)}% acierto`}
+                </span>
+              </button>
+              <button
+                type="button"
+                className="lesson-play"
+                onClick={() => onPlay(w.week, w.section_name)}
+                disabled={loading || w.count < 4}
+              >
+                Jugar — Emparejar
+              </button>
+            </div>
           )
         })}
       </div>

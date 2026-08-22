@@ -14,6 +14,7 @@ import LessonSelector from './components/LessonSelector.jsx'
 import ExerciseCard from './components/ExerciseCard.jsx'
 import FreePractice from './components/FreePractice.jsx'
 import Dictionary from './components/Dictionary.jsx'
+import MatchGame from './components/MatchGame.jsx'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -95,6 +96,7 @@ export default function App() {
     () => localStorage.getItem('tutor-track') || 'engineering'
   )
   const [showDictionary, setShowDictionary] = useState(false)
+  const [matchGame, setMatchGame] = useState(null) // { week, sectionName }
 
   function changeTrack(next) {
     setTrack(next)
@@ -264,6 +266,19 @@ export default function App() {
     )
   }
 
+  if (matchGame) {
+    return (
+      <main className="shell">
+        <MatchGame
+          track={track}
+          week={matchGame.week}
+          sectionName={matchGame.sectionName}
+          onBack={() => setMatchGame(null)}
+        />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
       {!session && (
@@ -281,6 +296,7 @@ export default function App() {
           onTrack={changeTrack}
           onDictionary={() => setShowDictionary(true)}
           onLogout={handleLogout}
+          onPlay={(week, sectionName) => setMatchGame({ week, sectionName })}
         />
       )}
 
