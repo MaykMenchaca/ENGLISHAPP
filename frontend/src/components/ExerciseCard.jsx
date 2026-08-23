@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import FeedbackPanel from './FeedbackPanel.jsx'
+import SpeakButton from './SpeakButton.jsx'
 
 /** Sustituye el término dentro de la oración por una línea. */
 function blankOut(sentence, term) {
@@ -89,7 +90,10 @@ export default function ExerciseCard({
         {isMeaning ? (
           <>
             <p className="prompt-label">¿Qué significa?</p>
-            <p className="term">{word.term}</p>
+            <div className="term-row">
+              <p className="term">{word.term}</p>
+              <SpeakButton text={word.term} />
+            </div>
           </>
         ) : (
           <>
@@ -139,7 +143,7 @@ export default function ExerciseCard({
         {error && <p className="error">{error}</p>}
       </div>
 
-      <FeedbackPanel result={result} onNext={onNext} />
+      <FeedbackPanel result={result} onNext={onNext} speakText={word.sentence} />
     </div>
   )
 }

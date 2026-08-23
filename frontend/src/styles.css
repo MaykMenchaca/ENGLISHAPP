@@ -153,6 +153,11 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
 }
+.dict-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
 .dict-term {
   margin: 0 0 2px;
   font-weight: 600;
@@ -611,6 +616,11 @@ form {
   color: var(--faint);
   margin-bottom: 4px;
 }
+.feedback-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 .error {
   margin: 12px 0 0;
@@ -636,6 +646,192 @@ code {
   padding: 2px 7px;
   border-radius: 5px;
   font-size: 13px;
+}
+
+/* ---------- botón de pronunciación ---------- */
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--accent-deep);
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.speak-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.speak-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.speak-btn.sm {
+  width: 28px;
+  height: 28px;
+}
+.speak-btn.sm svg {
+  width: 15px;
+  height: 15px;
+}
+/* La palabra y su bocina van juntas, sin que el botón estire la línea */
+.term-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+}
+.term-row .term {
+  margin: 0;
+}
+.sentence-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.sentence-row .sentence {
+  margin: 0 0 10px;
+}
+
+/* ---------- progreso ---------- */
+.hero-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hero-figure {
+  /* Cifras proporcionales a propósito: tabular-nums deja los números grandes sueltos */
+  margin: 0;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--accent-deep);
+}
+.stat-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.stat-sub {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--soft);
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 560px) {
+  .stat-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.stat-value {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.stat-of {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--faint);
+}
+
+/* Medidor: la pista es un paso más claro de la misma superficie, no otro color */
+.meter {
+  display: block;
+  height: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--pill);
+  overflow: hidden;
+}
+.meter.thin {
+  height: 5px;
+  margin-top: 5px;
+}
+.meter-fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  background: var(--accent);
+  border-radius: var(--pill);
+  transition: width 250ms ease;
+}
+
+.stat-group {
+  margin-top: 6px;
+}
+.stat-group-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.stat-table th,
+.stat-table td {
+  text-align: left;
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 400;
+  vertical-align: middle;
+}
+.stat-table thead th {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding-bottom: 6px;
+}
+.stat-table tbody th {
+  width: 58%;
+  padding-right: 16px;
+}
+.stat-section-name {
+  display: block;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+/* tabular-nums solo aquí: son columnas de números que deben alinearse */
+.stat-table .num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--soft);
+  white-space: nowrap;
 }
 
 /* ---------- juego de emparejar ---------- */

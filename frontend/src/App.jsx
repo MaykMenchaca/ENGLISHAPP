@@ -15,6 +15,7 @@ import ExerciseCard from './components/ExerciseCard.jsx'
 import FreePractice from './components/FreePractice.jsx'
 import Dictionary from './components/Dictionary.jsx'
 import GamePicker from './components/GamePicker.jsx'
+import Stats from './components/Stats.jsx'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -97,6 +98,7 @@ export default function App() {
   )
   const [showDictionary, setShowDictionary] = useState(false)
   const [showGame, setShowGame] = useState(false)
+  const [showStats, setShowStats] = useState(false)
 
   function changeTrack(next) {
     setTrack(next)
@@ -274,6 +276,14 @@ export default function App() {
     )
   }
 
+  if (showStats) {
+    return (
+      <main className="shell">
+        <Stats onBack={() => setShowStats(false)} />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
       {!session && (
@@ -292,6 +302,7 @@ export default function App() {
           onDictionary={() => setShowDictionary(true)}
           onLogout={handleLogout}
           onGame={() => setShowGame(true)}
+          onStats={() => setShowStats(true)}
         />
       )}
 

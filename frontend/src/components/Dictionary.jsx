@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { addDictionaryEntry, deleteDictionaryEntry, getDictionary } from '../api.js'
+import SpeakButton from './SpeakButton.jsx'
 
 export default function Dictionary({ onBack }) {
   const [items, setItems] = useState([])
@@ -106,9 +107,12 @@ export default function Dictionary({ onBack }) {
           <div className="dict-list">
             {items.map((entry) => (
               <div className="dict-item" key={entry.id}>
-                <div>
-                  <p className="dict-term">{entry.term}</p>
-                  <p className="dict-meaning">{entry.meaning}</p>
+                <div className="dict-body">
+                  <SpeakButton text={entry.term} size="sm" />
+                  <div>
+                    <p className="dict-term">{entry.term}</p>
+                    <p className="dict-meaning">{entry.meaning}</p>
+                  </div>
                 </div>
                 <button
                   className="dict-delete"

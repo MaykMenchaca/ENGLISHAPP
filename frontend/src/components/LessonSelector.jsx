@@ -19,6 +19,7 @@ export default function LessonSelector({
   onDictionary,
   onLogout,
   onGame,
+  onStats,
 }) {
   return (
     <div className="stack">
@@ -53,7 +54,10 @@ export default function LessonSelector({
         >
           Académico
         </button>
-        <button type="button" className="tab-side" onClick={onGame}>
+        <button type="button" className="tab-side" onClick={onStats}>
+          Progreso
+        </button>
+        <button type="button" onClick={onGame}>
           Jugar
         </button>
         <button type="button" onClick={onDictionary}>

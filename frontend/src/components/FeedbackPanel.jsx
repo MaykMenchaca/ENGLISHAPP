@@ -1,4 +1,11 @@
-export default function FeedbackPanel({ result, onNext, nextLabel = 'Siguiente' }) {
+import SpeakButton from './SpeakButton.jsx'
+
+export default function FeedbackPanel({
+  result,
+  onNext,
+  nextLabel = 'Siguiente',
+  speakText,
+}) {
   if (!result) return null
 
   return (
@@ -22,9 +29,15 @@ export default function FeedbackPanel({ result, onNext, nextLabel = 'Siguiente' 
         </p>
       )}
 
-      <button className="btn primary" onClick={onNext} autoFocus>
-        {nextLabel}
-      </button>
+      <div className="feedback-actions">
+        <button className="btn primary" onClick={onNext} autoFocus>
+          {nextLabel}
+        </button>
+        {/* Aquí ya se reveló la respuesta, así que oír la oración no la delata */}
+        {speakText && (
+          <SpeakButton text={speakText} label="Escuchar la oración completa" />
+        )}
+      </div>
     </div>
   )
 }

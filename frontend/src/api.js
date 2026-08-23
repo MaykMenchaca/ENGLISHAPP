@@ -48,6 +48,8 @@ export const getProgress = (week, track = 'engineering') =>
     week ? `/api/progress?track=${track}&week=${week}` : `/api/progress?track=${track}`
   )
 
+export const getStats = () => request('/api/stats')
+
 // --- diccionario personal ---
 export const getDictionary = () => request('/api/dictionary')
 

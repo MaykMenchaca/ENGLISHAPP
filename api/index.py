@@ -23,6 +23,8 @@ except ImportError:
 
 try:  # ejecutado como paquete (uvicorn api.index:app)
     from .db import (
+        TRACK_ACADEMIC,
+        TRACK_BASIC,
         TRACK_ENGINEERING,
         Attempt,
         DictionaryEntry,
@@ -50,6 +52,8 @@ try:  # ejecutado como paquete (uvicorn api.index:app)
     )
 except ImportError:  # ejecutado como script suelto (Vercel)
     from db import (
+        TRACK_ACADEMIC,
+        TRACK_BASIC,
         TRACK_ENGINEERING,
         Attempt,
         DictionaryEntry,
@@ -283,6 +287,88 @@ def progress(week: Optional[int] = None, track: str = TRACK_ENGINEERING):
                 }
             )
         return {"items": items}
+    finally:
+        session.close()
+
+
+TRACK_LABELS = {
+    TRACK_ENGINEERING: "Ingeniería",
+    TRACK_BASIC: "Inglés básico",
+    TRACK_ACADEMIC: "Académico",
+}
+
+
+@router.get("/stats")
+def stats():
+    """Resumen de avance por pista y por sección, para la pantalla de progreso.
+
+    Una palabra cuenta como "practicada" en cuanto tiene al menos un intento;
+    la precisión se calcula sobre intentos, no sobre palabras.
+    """
+    session = get_session()
+    try:
+        # Un solo recorrido: agregamos intentos por palabra y los sumamos por sección.
+        per_word = dict(
+            session.execute(
+                select(Attempt.word_id, func.count(Attempt.id))
+                .where(Attempt.word_id.isnot(None))
+                .group_by(Attempt.word_id)
+            ).all()
+        )
+        per_word_ok = dict(
+            session.execute(
+                select(Attempt.word_id, func.count(Attempt.id))
+                .where(Attempt.word_id.isnot(None), Attempt.correct.is_(True))
+                .group_by(Attempt.word_id)
+            ).all()
+        )
+
+        words = session.execute(select(Word).order_by(Word.track, Word.week, Word.id)).scalars().all()
+
+        buckets = {}
+        for word in words:
+            track = buckets.setdefault(
+                word.track, {"sections": {}, "total": 0, "practiced": 0, "attempts": 0, "correct": 0}
+            )
+            section = track["sections"].setdefault(
+                word.week,
+                {
+                    "week": word.week,
+                    "section_name": word.section_name,
+                    "total": 0,
+                    "practiced": 0,
+                    "attempts": 0,
+                    "correct": 0,
+                },
+            )
+
+            attempts = per_word.get(word.id, 0)
+            correct = per_word_ok.get(word.id, 0)
+
+            for target in (track, section):
+                target["total"] += 1
+                target["attempts"] += attempts
+                target["correct"] += correct
+                if attempts:
+                    target["practiced"] += 1
+
+        def with_rates(d):
+            return {
+                **d,
+                "coverage": round(d["practiced"] / d["total"], 4) if d["total"] else 0,
+                "accuracy": round(d["correct"] / d["attempts"], 4) if d["attempts"] else None,
+            }
+
+        out = []
+        for track_key in (TRACK_ENGINEERING, TRACK_BASIC, TRACK_ACADEMIC):
+            data = buckets.get(track_key)
+            if not data:
+                continue
+            sections = [with_rates(s) for s in data["sections"].values()]
+            summary = with_rates({k: v for k, v in data.items() if k != "sections"})
+            out.append({"track": track_key, "label": TRACK_LABELS[track_key], **summary, "sections": sections})
+
+        return {"tracks": out}
     finally:
         session.close()
 
