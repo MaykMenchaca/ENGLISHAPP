@@ -170,11 +170,16 @@ def health():
         "AUTH_PASSWORD_HASH",
         "SESSION_SECRET",
     )
+    # Las que inyecta Vercel sola: si estas tampoco llegan, el problema no son
+    # nuestras variables sino cómo se está ejecutando la función.
+    de_vercel = ("VERCEL", "VERCEL_ENV", "VERCEL_REGION", "VERCEL_URL")
     return {
         "ok": True,
         "auth_configured": auth_configured(),
         "env_presentes": sorted(k for k in expected if os.environ.get(k)),
         "env_faltantes": sorted(k for k in expected if not os.environ.get(k)),
+        "vercel_env": {k: os.environ.get(k) for k in de_vercel},
+        "total_variables": len(os.environ),
     }
 
 
