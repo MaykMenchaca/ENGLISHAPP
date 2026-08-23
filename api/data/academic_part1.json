@@ -1,0 +1,66 @@
+[
+  {
+    "week": 1,
+    "section_name": "AWL 1 · Conceptos base",
+    "words": [
+      { "term": "area", "spanish": "Área, zona.", "sentence": "This area of research is growing fast.", "sentence_es": "Esta área de investigación está creciendo rápido." },
+      { "term": "to assess", "spanish": "Evaluar, valorar.", "sentence": "Teachers assess the students twice a year.", "sentence_es": "Los maestros evalúan a los estudiantes dos veces al año." },
+      { "term": "authority", "spanish": "Autoridad.", "sentence": "The local authority approved the new plan.", "sentence_es": "La autoridad local aprobó el nuevo plan." },
+      { "term": "available", "spanish": "Disponible.", "sentence": "The report is available on the website.", "sentence_es": "El informe está disponible en el sitio web." },
+      { "term": "concept", "spanish": "Concepto.", "sentence": "The concept is simple but powerful.", "sentence_es": "El concepto es simple pero poderoso." },
+      { "term": "to consist", "spanish": "Consistir, constar de.", "sentence": "The course consists of ten lessons.", "sentence_es": "El curso consta de diez lecciones." },
+      { "term": "context", "spanish": "Contexto.", "sentence": "You must read the word in context.", "sentence_es": "Debes leer la palabra en contexto." },
+      { "term": "contract", "spanish": "Contrato.", "sentence": "Both companies signed the contract yesterday.", "sentence_es": "Ambas empresas firmaron el contrato ayer." },
+      { "term": "to create", "spanish": "Crear.", "sentence": "The team wants to create a better system.", "sentence_es": "El equipo quiere crear un mejor sistema." },
+      { "term": "to define", "spanish": "Definir.", "sentence": "The author does not define the term clearly.", "sentence_es": "El autor no define el término con claridad." },
+      { "term": "economy", "spanish": "Economía.", "sentence": "The economy grew three percent last year.", "sentence_es": "La economía creció tres por ciento el año pasado." },
+      { "term": "environment", "spanish": "Medio ambiente, entorno.", "sentence": "The new rules protect the environment.", "sentence_es": "Las nuevas reglas protegen el medio ambiente." },
+      { "term": "evident", "spanish": "Evidente.", "sentence": "The problem was evident from the start.", "sentence_es": "El problema fue evidente desde el inicio." },
+      { "term": "function", "spanish": "Función.", "sentence": "The main function of the heart is to pump blood.", "sentence_es": "La función principal del corazón es bombear sangre." },
+      { "term": "individual", "spanish": "Individuo; individual.", "sentence": "Each individual must complete the form.", "sentence_es": "Cada individuo debe llenar el formulario." },
+      { "term": "issue", "spanish": "Asunto, problema.", "sentence": "We need to discuss this issue today.", "sentence_es": "Necesitamos discutir este asunto hoy." }
+    ]
+  },
+  {
+    "week": 2,
+    "section_name": "AWL 1 · Análisis y datos",
+    "words": [
+      { "term": "to constitute", "spanish": "Constituir, formar.", "sentence": "Women constitute half of the workforce.", "sentence_es": "Las mujeres constituyen la mitad de la fuerza laboral." },
+      { "term": "to derive", "spanish": "Derivar, obtener de.", "sentence": "Many English words derive from Latin.", "sentence_es": "Muchas palabras del inglés derivan del latín." },
+      { "term": "to distribute", "spanish": "Distribuir, repartir.", "sentence": "The teacher will distribute the papers now.", "sentence_es": "El maestro va a distribuir los papeles ahora." },
+      { "term": "to export", "spanish": "Exportar.", "sentence": "Mexico exports cars to many countries.", "sentence_es": "México exporta automóviles a muchos países." },
+      { "term": "finance", "spanish": "Finanzas.", "sentence": "She studies finance at the university.", "sentence_es": "Ella estudia finanzas en la universidad." },
+      { "term": "formula", "spanish": "Fórmula.", "sentence": "The formula gives the correct answer.", "sentence_es": "La fórmula da la respuesta correcta." },
+      { "term": "income", "spanish": "Ingreso.", "sentence": "The average income rose last year.", "sentence_es": "El ingreso promedio subió el año pasado." },
+      { "term": "to interpret", "spanish": "Interpretar.", "sentence": "Scientists interpret the results differently.", "sentence_es": "Los científicos interpretan los resultados de forma distinta." },
+      { "term": "to involve", "spanish": "Implicar, involucrar.", "sentence": "The project will involve three departments.", "sentence_es": "El proyecto va a involucrar a tres departamentos." },
+      { "term": "major", "spanish": "Principal, importante.", "sentence": "Cost is a major problem for the company.", "sentence_es": "El costo es un problema principal para la empresa." },
+      { "term": "to occur", "spanish": "Ocurrir, suceder.", "sentence": "Earthquakes occur without warning.", "sentence_es": "Los terremotos ocurren sin aviso." },
+      { "term": "percent", "spanish": "Por ciento.", "sentence": "Only ten percent of students passed.", "sentence_es": "Solo el diez por ciento de los estudiantes aprobó." },
+      { "term": "period", "spanish": "Periodo, época.", "sentence": "The study covers a period of five years.", "sentence_es": "El estudio abarca un periodo de cinco años." },
+      { "term": "policy", "spanish": "Política, normativa.", "sentence": "The company changed its return policy.", "sentence_es": "La empresa cambió su política de devoluciones." },
+      { "term": "principle", "spanish": "Principio (norma).", "sentence": "This principle applies to every case.", "sentence_es": "Este principio aplica a todos los casos." }
+    ]
+  },
+  {
+    "week": 3,
+    "section_name": "AWL 1 · Estructura y sociedad",
+    "words": [
+      { "term": "to proceed", "spanish": "Proceder, continuar.", "sentence": "Please proceed to the next question.", "sentence_es": "Por favor procede a la siguiente pregunta." },
+      { "term": "research", "spanish": "Investigación.", "sentence": "Her research changed how we treat the disease.", "sentence_es": "Su investigación cambió cómo tratamos la enfermedad." },
+      { "term": "to respond", "spanish": "Responder.", "sentence": "Please respond to the email today.", "sentence_es": "Por favor responde al correo hoy." },
+      { "term": "role", "spanish": "Papel, rol.", "sentence": "Water plays an important role in the process.", "sentence_es": "El agua juega un papel importante en el proceso." },
+      { "term": "section", "spanish": "Sección.", "sentence": "Read the second section before class.", "sentence_es": "Lee la segunda sección antes de la clase." },
+      { "term": "sector", "spanish": "Sector.", "sentence": "The energy sector created many jobs.", "sentence_es": "El sector energético creó muchos empleos." },
+      { "term": "similar", "spanish": "Similar, parecido.", "sentence": "The two results are very similar.", "sentence_es": "Los dos resultados son muy similares." },
+      { "term": "source", "spanish": "Fuente.", "sentence": "Always check the source of the information.", "sentence_es": "Siempre revisa la fuente de la información." },
+      { "term": "specific", "spanish": "Específico.", "sentence": "Give me a specific example, please.", "sentence_es": "Dame un ejemplo específico, por favor." },
+      { "term": "structure", "spanish": "Estructura.", "sentence": "The structure of the essay is clear.", "sentence_es": "La estructura del ensayo es clara." },
+      { "term": "theory", "spanish": "Teoría.", "sentence": "The theory explains most of the data.", "sentence_es": "La teoría explica la mayoría de los datos." },
+      { "term": "to vary", "spanish": "Variar.", "sentence": "Prices vary from store to store.", "sentence_es": "Los precios varían de tienda a tienda." },
+      { "term": "legal", "spanish": "Legal.", "sentence": "The company needs legal advice.", "sentence_es": "La empresa necesita asesoría legal." },
+      { "term": "labor", "spanish": "Trabajo, mano de obra.", "sentence": "Labor costs increased this quarter.", "sentence_es": "Los costos de mano de obra aumentaron este trimestre." },
+      { "term": "to legislate", "spanish": "Legislar.", "sentence": "Congress will legislate on this matter soon.", "sentence_es": "El congreso legislará sobre este asunto pronto." }
+    ]
+  }
+]

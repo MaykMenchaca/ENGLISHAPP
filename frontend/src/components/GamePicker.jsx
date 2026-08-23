@@ -58,6 +58,13 @@ export default function GamePicker({ onBack }) {
         >
           Inglés básico
         </button>
+        <button
+          type="button"
+          className={track === 'academic' ? 'active' : ''}
+          onClick={() => setTrack('academic')}
+        >
+          Académico
+        </button>
       </div>
 
       {error && (

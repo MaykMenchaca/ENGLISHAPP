@@ -19,6 +19,7 @@ Base = declarative_base()
 
 TRACK_ENGINEERING = "engineering"
 TRACK_BASIC = "basic"
+TRACK_ACADEMIC = "academic"
 
 
 class Word(Base):

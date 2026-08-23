@@ -29,7 +29,15 @@ try:
 except ImportError:
     pass
 
-from db import TRACK_BASIC, TRACK_ENGINEERING, Word, get_session, init_db, reset_db  # noqa: E402
+from db import (  # noqa: E402
+    TRACK_ACADEMIC,
+    TRACK_BASIC,
+    TRACK_ENGINEERING,
+    Word,
+    get_session,
+    init_db,
+    reset_db,
+)
 
 # Los .txt de ingeniería viven en la carpeta que contiene al proyecto
 SOURCE_DIR = ROOT.parent
@@ -37,6 +45,7 @@ ENGINEERING_GLOB = "Vocabulario-Semana-*.txt"
 TRANSLATIONS_FILE = SOURCE_DIR / "Traducciones-de-apoyo.txt"
 BASIC_GLOB = "basic_part*.json"
 EQUIPMENT_GLOB = "equipment_part*.json"
+ACADEMIC_GLOB = "academic_part*.json"
 
 ENGINEERING_SECTIONS = {
     1: "Cimientos",
@@ -191,12 +200,20 @@ def main():
         basic_created, basic_updated = seed_json_pack(session, BASIC_GLOB, TRACK_BASIC)
         print(f"  nuevas: {basic_created}   actualizadas: {basic_updated}")
 
+        print("\n== Académico (AWL, phrasal verbs, colocaciones) ==")
+        acad_created, acad_updated = seed_json_pack(session, ACADEMIC_GLOB, TRACK_ACADEMIC)
+        print(f"  nuevas: {acad_created}   actualizadas: {acad_updated}")
+
         session.commit()
 
         total = session.query(Word).count()
         eng = session.query(Word).filter_by(track=TRACK_ENGINEERING).count()
         basic = session.query(Word).filter_by(track=TRACK_BASIC).count()
-        print(f"\nTotal en la base de datos: {total}  ({eng} ingeniería + {basic} básico)")
+        acad = session.query(Word).filter_by(track=TRACK_ACADEMIC).count()
+        print(
+            f"\nTotal en la base de datos: {total}  "
+            f"({eng} ingeniería + {basic} básico + {acad} académico)"
+        )
 
         if missing:
             print(f"\nSIN traducción al español ({len(missing)}):")

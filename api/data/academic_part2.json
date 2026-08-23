@@ -1,0 +1,54 @@
+[
+  {
+    "week": 4,
+    "section_name": "Phrasal verbs esenciales",
+    "words": [
+      { "term": "get up", "spanish": "Levantarse.", "sentence": "I get up at six every day.", "sentence_es": "Me levanto a las seis todos los días." },
+      { "term": "wake up", "spanish": "Despertarse.", "sentence": "I wake up before the alarm rings.", "sentence_es": "Me despierto antes de que suene la alarma." },
+      { "term": "turn on", "spanish": "Encender.", "sentence": "Please turn on the light.", "sentence_es": "Por favor enciende la luz." },
+      { "term": "turn off", "spanish": "Apagar.", "sentence": "Turn off the machine before cleaning it.", "sentence_es": "Apaga la máquina antes de limpiarla." },
+      { "term": "pick up", "spanish": "Recoger, levantar.", "sentence": "Can you pick up the package for me?", "sentence_es": "¿Puedes recoger el paquete por mí?" },
+      { "term": "put on", "spanish": "Ponerse (ropa).", "sentence": "Put on your safety helmet before entering.", "sentence_es": "Ponte el casco de seguridad antes de entrar." },
+      { "term": "take off", "spanish": "Quitarse; despegar.", "sentence": "Take off your shoes at the door.", "sentence_es": "Quítate los zapatos en la puerta." },
+      { "term": "look for", "spanish": "Buscar.", "sentence": "I look for my keys every morning.", "sentence_es": "Busco mis llaves todas las mañanas." },
+      { "term": "look after", "spanish": "Cuidar de.", "sentence": "Can you look after my dog this weekend?", "sentence_es": "¿Puedes cuidar a mi perro este fin de semana?" },
+      { "term": "find out", "spanish": "Averiguar, descubrir.", "sentence": "We need to find out the cause of the failure.", "sentence_es": "Necesitamos averiguar la causa de la falla." },
+      { "term": "give up", "spanish": "Rendirse, darse por vencido.", "sentence": "Do not give up so early.", "sentence_es": "No te rindas tan pronto." },
+      { "term": "carry out", "spanish": "Llevar a cabo, realizar.", "sentence": "The team will carry out the test tomorrow.", "sentence_es": "El equipo llevará a cabo la prueba mañana." },
+      { "term": "point out", "spanish": "Señalar, hacer notar.", "sentence": "Let me point out one important problem.", "sentence_es": "Déjame señalar un problema importante." },
+      { "term": "set up", "spanish": "Montar, configurar.", "sentence": "We set up the equipment before the shift.", "sentence_es": "Montamos el equipo antes del turno." },
+      { "term": "bring up", "spanish": "Mencionar, sacar un tema.", "sentence": "Please bring up that topic in the meeting.", "sentence_es": "Por favor menciona ese tema en la reunión." },
+      { "term": "come up with", "spanish": "Idear, se te ocurre.", "sentence": "We need to come up with a better plan.", "sentence_es": "Necesitamos idear un mejor plan." },
+      { "term": "deal with", "spanish": "Lidiar con, manejar.", "sentence": "How do you deal with stress at work?", "sentence_es": "¿Cómo lidias con el estrés en el trabajo?" },
+      { "term": "figure out", "spanish": "Descifrar, entender.", "sentence": "I cannot figure out the answer.", "sentence_es": "No logro descifrar la respuesta." },
+      { "term": "run out of", "spanish": "Quedarse sin.", "sentence": "We run out of paper every week.", "sentence_es": "Nos quedamos sin papel cada semana." },
+      { "term": "take care of", "spanish": "Encargarse de, ocuparse de.", "sentence": "Who will take care of the report?", "sentence_es": "¿Quién se va a encargar del informe?" }
+    ]
+  },
+  {
+    "week": 5,
+    "section_name": "Colocaciones frecuentes",
+    "words": [
+      { "term": "make a decision", "spanish": "Tomar una decisión.", "sentence": "We need to make a decision today.", "sentence_es": "Necesitamos tomar una decisión hoy." },
+      { "term": "take a break", "spanish": "Tomar un descanso.", "sentence": "Let us take a break for ten minutes.", "sentence_es": "Tomemos un descanso de diez minutos." },
+      { "term": "pay attention", "spanish": "Prestar atención.", "sentence": "Please pay attention to the details.", "sentence_es": "Por favor presta atención a los detalles." },
+      { "term": "make progress", "spanish": "Avanzar, progresar.", "sentence": "The students make progress every week.", "sentence_es": "Los estudiantes avanzan cada semana." },
+      { "term": "take responsibility", "spanish": "Asumir la responsabilidad.", "sentence": "You must take responsibility for the error.", "sentence_es": "Debes asumir la responsabilidad del error." },
+      { "term": "reach an agreement", "spanish": "Llegar a un acuerdo.", "sentence": "Both sides finally reach an agreement.", "sentence_es": "Ambas partes finalmente llegan a un acuerdo." },
+      { "term": "meet a deadline", "spanish": "Cumplir una fecha límite.", "sentence": "It is hard to meet a deadline this short.", "sentence_es": "Es difícil cumplir una fecha límite tan corta." },
+      { "term": "raise a concern", "spanish": "Plantear una preocupación.", "sentence": "I want to raise a concern about safety.", "sentence_es": "Quiero plantear una preocupación sobre la seguridad." },
+      { "term": "conduct a survey", "spanish": "Realizar una encuesta.", "sentence": "We conduct a survey every year.", "sentence_es": "Realizamos una encuesta cada año." },
+      { "term": "draw a conclusion", "spanish": "Sacar una conclusión.", "sentence": "Do not draw a conclusion too early.", "sentence_es": "No saques una conclusión demasiado pronto." },
+      { "term": "play a role", "spanish": "Jugar un papel.", "sentence": "Many factors play a role in the result.", "sentence_es": "Muchos factores juegan un papel en el resultado." },
+      { "term": "take into account", "spanish": "Tomar en cuenta.", "sentence": "We must take into account the total cost.", "sentence_es": "Debemos tomar en cuenta el costo total." },
+      { "term": "keep in mind", "spanish": "Tener en mente.", "sentence": "Keep in mind that the test is timed.", "sentence_es": "Ten en mente que el examen es cronometrado." },
+      { "term": "make sure", "spanish": "Asegurarse.", "sentence": "Make sure the door is closed.", "sentence_es": "Asegúrate de que la puerta esté cerrada." },
+      { "term": "take place", "spanish": "Tener lugar, ocurrir.", "sentence": "The meeting will take place on Monday.", "sentence_es": "La reunión tendrá lugar el lunes." },
+      { "term": "provide support", "spanish": "Brindar apoyo.", "sentence": "We provide support to new employees.", "sentence_es": "Brindamos apoyo a los empleados nuevos." },
+      { "term": "gain experience", "spanish": "Adquirir experiencia.", "sentence": "Interns gain experience in real projects.", "sentence_es": "Los practicantes adquieren experiencia en proyectos reales." },
+      { "term": "solve a problem", "spanish": "Resolver un problema.", "sentence": "Engineers solve a problem like this every day.", "sentence_es": "Los ingenieros resuelven un problema así todos los días." },
+      { "term": "set a goal", "spanish": "Fijar una meta.", "sentence": "Set a goal before you start studying.", "sentence_es": "Fija una meta antes de empezar a estudiar." },
+      { "term": "give feedback", "spanish": "Dar retroalimentación.", "sentence": "The teacher will give feedback tomorrow.", "sentence_es": "El maestro dará retroalimentación mañana." }
+    ]
+  }
+]

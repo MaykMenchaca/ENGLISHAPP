@@ -10,12 +10,22 @@ Complementa el mazo de Anki: Anki fija las palabras, esto te hace producirlas y 
 
 ## Cómo funciona
 
-Dos pistas de vocabulario, en pestañas separadas:
+Tres pistas de vocabulario, en pestañas separadas (505 palabras en total):
 
-- **Ingeniería** — 120 palabras en 4 bloques (TOEFL + ingeniería industrial)
+- **Ingeniería** — 219 palabras en 10 bloques: 120 de TOEFL/ingeniería industrial
+  (bloques 1-4) y 99 de equipos de planta (bloques 5-10): válvulas, equipo rotativo,
+  recipientes, instrumentación, eléctrico y manejo de materiales.
 - **Inglés básico** — 200 palabras en 10 secciones temáticas: saludos, despedidas,
   números y hora, comida, direcciones, compras, familia, verbos del día a día,
-  adjetivos y conectores
+  adjetivos y conectores.
+- **Académico** — 86 palabras en 5 secciones. Las tres primeras salen de la
+  [Academic Word List de Coxhead](https://www.eapfoundation.com/vocab/academic/awllists/):
+  ~10% de las palabras de un pasaje de Reading del TOEFL vienen de esa lista, y la
+  Sublista 1 es la de mayor rendimiento por palabra. Las otras dos cubren *phrasal
+  verbs* y colocaciones, dos huecos habituales del hispanohablante.
+
+  Se seleccionaron solo las palabras del AWL que **no** estaban ya en las otras pistas:
+  de las 60 de la Sublista 1, 13 ya estaban cubiertas.
 
 Cada sesión son 5 palabras, elegidas al azar dentro de tres niveles de prioridad
 (primero las que nunca has visto, luego las que fallas, al final las dominadas). De cada

@@ -46,6 +46,13 @@ export default function LessonSelector({
         >
           Inglés básico
         </button>
+        <button
+          type="button"
+          className={track === 'academic' ? 'active' : ''}
+          onClick={() => onTrack('academic')}
+        >
+          Académico
+        </button>
         <button type="button" className="tab-side" onClick={onGame}>
           Jugar
         </button>
