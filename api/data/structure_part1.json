@@ -1,0 +1,70 @@
+[
+  {
+    "week": 1,
+    "section_name": "Pronombres",
+    "words": [
+      { "term": "I", "spanish": "Yo.", "sentence": "I work at a chemical plant.", "sentence_es": "Yo trabajo en una planta química." },
+      { "term": "you", "spanish": "Tú, usted, ustedes.", "sentence": "You are my new coworker.", "sentence_es": "Tú eres mi nuevo compañero de trabajo." },
+      { "term": "he", "spanish": "Él.", "sentence": "He checks the pressure every morning.", "sentence_es": "Él revisa la presión cada mañana." },
+      { "term": "she", "spanish": "Ella.", "sentence": "She leads the maintenance team.", "sentence_es": "Ella lidera el equipo de mantenimiento." },
+      { "term": "it", "spanish": "Él, ella (para cosas); eso.", "sentence": "The pump is old; it needs repair.", "sentence_es": "La bomba es vieja; necesita reparación." },
+      { "term": "we", "spanish": "Nosotros.", "sentence": "We start the shift at seven.", "sentence_es": "Nosotros empezamos el turno a las siete." },
+      { "term": "they", "spanish": "Ellos, ellas.", "sentence": "They installed the new valve yesterday.", "sentence_es": "Ellos instalaron la nueva válvula ayer." },
+      { "term": "me", "spanish": "A mí, me.", "sentence": "Please give me the report.", "sentence_es": "Por favor dame el informe." },
+      { "term": "him", "spanish": "A él, lo, le.", "sentence": "I saw him in the control room.", "sentence_es": "Lo vi a él en la sala de control." },
+      { "term": "her", "spanish": "A ella, la, le; su (de ella).", "sentence": "Ask her about the schedule.", "sentence_es": "Pregúntale a ella sobre el horario." },
+      { "term": "us", "spanish": "A nosotros, nos.", "sentence": "The supervisor called us this morning.", "sentence_es": "El supervisor nos llamó esta mañana." },
+      { "term": "them", "spanish": "A ellos, los, les.", "sentence": "Send them the updated drawing.", "sentence_es": "Envíales a ellos el plano actualizado." },
+      { "term": "my", "spanish": "Mi (posesivo).", "sentence": "My shift starts at six.", "sentence_es": "Mi turno empieza a las seis." },
+      { "term": "your", "spanish": "Tu, su (posesivo).", "sentence": "Is this your toolbox?", "sentence_es": "¿Esta es tu caja de herramientas?" },
+      { "term": "his", "spanish": "Su (de él); el suyo.", "sentence": "This is his safety helmet.", "sentence_es": "Este es su casco de seguridad." },
+      { "term": "our", "spanish": "Nuestro, nuestra.", "sentence": "Our plant produces steel pipes.", "sentence_es": "Nuestra planta produce tubos de acero." },
+      { "term": "their", "spanish": "Su (de ellos, de ellas).", "sentence": "Their team finished the project early.", "sentence_es": "Su equipo terminó el proyecto temprano." },
+      { "term": "mine", "spanish": "El mío, la mía.", "sentence": "That toolbox is mine.", "sentence_es": "Esa caja de herramientas es mía." },
+      { "term": "yours", "spanish": "El tuyo, la tuya.", "sentence": "This badge is yours, not mine.", "sentence_es": "Este gafete es tuyo, no mío." },
+      { "term": "theirs", "spanish": "El suyo, la suya (de ellos).", "sentence": "The blue truck is theirs.", "sentence_es": "El camión azul es de ellos." }
+    ]
+  },
+  {
+    "week": 2,
+    "section_name": "Verbo to be",
+    "words": [
+      { "term": "am", "spanish": "Soy, estoy (yo).", "sentence": "I am an industrial engineer.", "sentence_es": "Soy ingeniero industrial." },
+      { "term": "is", "spanish": "Es, está (él, ella, eso).", "sentence": "The machine is broken.", "sentence_es": "La máquina está descompuesta." },
+      { "term": "are", "spanish": "Son, están (tú, nosotros, ellos).", "sentence": "We are ready for the shift.", "sentence_es": "Estamos listos para el turno." },
+      { "term": "was", "spanish": "Era, estaba (yo, él, ella).", "sentence": "The valve was open.", "sentence_es": "La válvula estaba abierta." },
+      { "term": "were", "spanish": "Eran, estaban (tú, nosotros, ellos).", "sentence": "They were at the site yesterday.", "sentence_es": "Ellos estaban en el sitio ayer." },
+      { "term": "isn't", "spanish": "No es, no está.", "sentence": "This tool isn't safe to use.", "sentence_es": "Esta herramienta no es segura de usar." },
+      { "term": "aren't", "spanish": "No son, no están.", "sentence": "The results aren't correct.", "sentence_es": "Los resultados no son correctos." },
+      { "term": "wasn't", "spanish": "No era, no estaba.", "sentence": "The pressure wasn't stable.", "sentence_es": "La presión no era estable." },
+      { "term": "weren't", "spanish": "No eran, no estaban.", "sentence": "The readings weren't accurate.", "sentence_es": "Las lecturas no eran precisas." },
+      { "term": "am not", "spanish": "No soy, no estoy.", "sentence": "I am not sure about this.", "sentence_es": "No estoy seguro de esto." },
+      { "term": "to be", "spanish": "Ser, estar.", "sentence": "I want to be a good engineer.", "sentence_es": "Quiero ser un buen ingeniero." },
+      { "term": "I'm", "spanish": "Yo soy, yo estoy.", "sentence": "I'm ready to start the shift.", "sentence_es": "Estoy listo para empezar el turno." },
+      { "term": "you're", "spanish": "Tú eres, tú estás.", "sentence": "You're doing a great job.", "sentence_es": "Estás haciendo un gran trabajo." },
+      { "term": "he's", "spanish": "Él es, él está.", "sentence": "He's the new supervisor.", "sentence_es": "Él es el nuevo supervisor." },
+      { "term": "she's", "spanish": "Ella es, ella está.", "sentence": "She's checking the temperature now.", "sentence_es": "Ella está revisando la temperatura ahora." },
+      { "term": "it's", "spanish": "Es, está (para cosas).", "sentence": "It's time to close the valve.", "sentence_es": "Es hora de cerrar la válvula." },
+      { "term": "we're", "spanish": "Nosotros somos, estamos.", "sentence": "We're checking the pipeline today.", "sentence_es": "Estamos revisando la tubería hoy." },
+      { "term": "they're", "spanish": "Ellos son, están.", "sentence": "They're installing new sensors.", "sentence_es": "Ellos están instalando sensores nuevos." }
+    ]
+  },
+  {
+    "week": 3,
+    "section_name": "Artículos y demostrativos",
+    "words": [
+      { "term": "a", "spanish": "Un, una.", "sentence": "I need a wrench.", "sentence_es": "Necesito una llave inglesa." },
+      { "term": "an", "spanish": "Un, una (antes de vocal).", "sentence": "She is an engineer.", "sentence_es": "Ella es ingeniera." },
+      { "term": "the", "spanish": "El, la, los, las.", "sentence": "The valve is in the basement.", "sentence_es": "La válvula está en el sótano." },
+      { "term": "this", "spanish": "Este, esta, esto.", "sentence": "This machine needs maintenance.", "sentence_es": "Esta máquina necesita mantenimiento." },
+      { "term": "that", "spanish": "Ese, esa, eso; aquel.", "sentence": "That pump is louder than usual.", "sentence_es": "Esa bomba está más ruidosa de lo normal." },
+      { "term": "these", "spanish": "Estos, estas.", "sentence": "These tools belong to the team.", "sentence_es": "Estas herramientas son del equipo." },
+      { "term": "those", "spanish": "Esos, esas; aquellos.", "sentence": "Those readings look wrong.", "sentence_es": "Esas lecturas se ven mal." },
+      { "term": "some", "spanish": "Algunos, algo de.", "sentence": "There is some oil on the floor.", "sentence_es": "Hay algo de aceite en el piso." },
+      { "term": "any", "spanish": "Ningún, alguno (negativas y preguntas).", "sentence": "We don't have any spare parts.", "sentence_es": "No tenemos ninguna refacción." },
+      { "term": "no", "spanish": "Ningún, ninguna, nada de.", "sentence": "There is no water in the tank.", "sentence_es": "No hay nada de agua en el tanque." },
+      { "term": "other", "spanish": "Otro, otra.", "sentence": "Check the other valve too.", "sentence_es": "Revisa la otra válvula también." },
+      { "term": "another", "spanish": "Otro más, uno más.", "sentence": "We need another technician here.", "sentence_es": "Necesitamos otro técnico más aquí." }
+    ]
+  }
+]

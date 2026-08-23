@@ -17,6 +17,7 @@ import FreePractice from './components/FreePractice.jsx'
 import Dictionary from './components/Dictionary.jsx'
 import GamePicker from './components/GamePicker.jsx'
 import Stats from './components/Stats.jsx'
+import RutaScreen from './components/RutaScreen.jsx'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -93,13 +94,15 @@ export default function App() {
     localStorage.setItem('tutor-provider', next)
   }
 
-  // 'engineering' | 'basic'
+  // 'structure' | 'engineering' | 'basic' | 'academic'. Empieza en 'structure'
+  // para quien nunca ha elegido nada — es el primer paso de la ruta recomendada.
   const [track, setTrack] = useState(
-    () => localStorage.getItem('tutor-track') || 'engineering'
+    () => localStorage.getItem('tutor-track') || 'structure'
   )
   const [showDictionary, setShowDictionary] = useState(false)
   const [showGame, setShowGame] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  const [showRuta, setShowRuta] = useState(false)
 
   function changeTrack(next) {
     setTrack(next)
@@ -166,11 +169,14 @@ export default function App() {
     }
   }, [track, authenticated])
 
-  async function startWeek(week) {
+  // trackOverride existe para saltos desde la Ruta: el estado `track` tarda un
+  // render en actualizarse, así que no sirve leerlo aquí mismo tras cambiarlo.
+  async function startWeek(week, trackOverride) {
+    const activeTrack = trackOverride || track
     setLoading(true)
     setFatalError(null)
     try {
-      const prog = await getProgress(week, track)
+      const prog = await getProgress(week, activeTrack)
 
       // Tres grupos por prioridad: nunca vistas, falladas, y dominadas.
       // Se baraja DENTRO de cada grupo para que no salgan siempre las mismas
@@ -209,6 +215,14 @@ export default function App() {
   // "¿Cómo digo esto?" — consulta libre, no ligada al ejercicio en curso.
   function handleSayIt(spanish, attempt) {
     return sayIt(spanish, attempt, provider)
+  }
+
+  // Saltar a un bloque de OTRO track (desde la Ruta o la franja "siguiente
+  // recomendado"): cambia la pestaña activa y arranca la sesión ahí mismo.
+  function handleJump(jumpTrack, week) {
+    changeTrack(jumpTrack)
+    setShowRuta(false)
+    startWeek(week, jumpTrack)
   }
 
   function exitSession() {
@@ -290,6 +304,14 @@ export default function App() {
     )
   }
 
+  if (showRuta) {
+    return (
+      <main className="shell">
+        <RutaScreen onBack={() => setShowRuta(false)} onStart={handleJump} />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
       {!session && (
@@ -297,6 +319,7 @@ export default function App() {
           weeks={weeks}
           progress={progress}
           onStart={startWeek}
+          onJump={handleJump}
           loading={loading}
           format={format}
           onFormat={changeFormat}
@@ -309,6 +332,7 @@ export default function App() {
           onLogout={handleLogout}
           onGame={() => setShowGame(true)}
           onStats={() => setShowStats(true)}
+          onRuta={() => setShowRuta(true)}
         />
       )}
 

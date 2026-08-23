@@ -1,13 +1,25 @@
+import { useEffect, useState } from 'react'
+import { getStats } from '../api.js'
+import { LEARNING_PATH, isMastered } from '../learningPath.js'
+
 const PROVIDER_LABELS = {
   gemini: 'Gemini',
   claude: 'Claude',
   deepseek: 'DeepSeek',
 }
 
+// Posición de cada (track, week) dentro de la ruta global, 1-indexada. Es
+// estático — no depende de progreso — así que se calcula una sola vez fuera
+// del componente en vez de en cada render.
+const PATH_INDEX = new Map(
+  LEARNING_PATH.map((step, i) => [`${step.track}-${step.week}`, i + 1])
+)
+
 export default function LessonSelector({
   weeks,
   progress,
   onStart,
+  onJump,
   loading,
   format,
   onFormat,
@@ -20,7 +32,37 @@ export default function LessonSelector({
   onLogout,
   onGame,
   onStats,
+  onRuta,
 }) {
+  // Solo para la franja "siguiente recomendado" — el orden de las tarjetas
+  // dentro de cada track ya no necesita esto, es puramente estático.
+  const [statsTracks, setStatsTracks] = useState([])
+
+  useEffect(() => {
+    let alive = true
+    getStats()
+      .then((d) => alive && setStatsTracks(d.tracks))
+      .catch(() => {}) // la franja simplemente no aparece si falla
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const byTrack = {}
+  for (const t of statsTracks) {
+    byTrack[t.track] = {}
+    for (const s of t.sections) byTrack[t.track][s.week] = s
+  }
+  const nextStep = LEARNING_PATH.find((step) => !isMastered(byTrack[step.track]?.[step.week]))
+  const nextStepStats = nextStep && byTrack[nextStep.track]?.[nextStep.week]
+
+  // Mismas tarjetas, reordenadas por prioridad de la ruta — los bloques que
+  // no están en la ruta (no debería pasar, la cubre entera) van al final.
+  const orderedWeeks = [...weeks].sort((a, b) => {
+    const pa = PATH_INDEX.get(`${track}-${a.week}`) ?? 999
+    const pb = PATH_INDEX.get(`${track}-${b.week}`) ?? 999
+    return pa - pb
+  })
   return (
     <div className="stack">
       <header className="masthead">
@@ -32,7 +74,34 @@ export default function LessonSelector({
         </p>
       </header>
 
+      {/* Solo aparece si aún queda algo por dominar en la ruta — cuando la
+          termina toda, no tiene sentido seguir empujándolo a "lo siguiente". */}
+      {nextStep && (
+        <div className="next-up">
+          <div className="next-up-text">
+            <span className="next-up-label">Siguiente recomendado</span>
+            <p className="next-up-title">
+              {nextStepStats?.section_name || `Bloque ${nextStep.week}`}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn primary"
+            onClick={() => onJump(nextStep.track, nextStep.week)}
+          >
+            Empezar
+          </button>
+        </div>
+      )}
+
       <div className="tabs" role="group" aria-label="Tipo de vocabulario">
+        <button
+          type="button"
+          className={track === 'structure' ? 'active' : ''}
+          onClick={() => onTrack('structure')}
+        >
+          Estructura
+        </button>
         <button
           type="button"
           className={track === 'engineering' ? 'active' : ''}
@@ -54,7 +123,10 @@ export default function LessonSelector({
         >
           Académico
         </button>
-        <button type="button" className="tab-side" onClick={onStats}>
+        <button type="button" className="tab-side" onClick={onRuta}>
+          Ruta
+        </button>
+        <button type="button" onClick={onStats}>
           Progreso
         </button>
         <button type="button" onClick={onGame}>
@@ -118,9 +190,10 @@ export default function LessonSelector({
       )}
 
       <div className="lesson-grid">
-        {weeks.map((w) => {
+        {orderedWeeks.map((w) => {
           const stats = progress[w.week] || { attempted: 0, accuracy: null }
           const pct = w.count ? Math.round((stats.attempted / w.count) * 100) : 0
+          const priority = PATH_INDEX.get(`${track}-${w.week}`)
           return (
             <button
               key={w.week}
@@ -128,7 +201,10 @@ export default function LessonSelector({
               onClick={() => onStart(w.week)}
               disabled={loading}
             >
-              <span className="lesson-num">Bloque {w.week}</span>
+              <span className="lesson-num">
+                Bloque {w.week}
+                {priority && <span className="lesson-priority"> · {priority}º en tu ruta</span>}
+              </span>
               <span className="lesson-title">{w.section_name}</span>
               <span className="lesson-meta">{w.count} palabras</span>
               <span className="bar" aria-hidden="true">

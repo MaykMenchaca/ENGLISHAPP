@@ -1,0 +1,67 @@
+[
+  {
+    "week": 4,
+    "section_name": "Preposiciones",
+    "words": [
+      { "term": "in", "spanish": "En, dentro de.", "sentence": "The report is in my office.", "sentence_es": "El informe está en mi oficina." },
+      { "term": "on", "spanish": "Sobre, en.", "sentence": "Put the tools on the table.", "sentence_es": "Pon las herramientas sobre la mesa." },
+      { "term": "at", "spanish": "En (lugar u hora).", "sentence": "We meet at nine o'clock.", "sentence_es": "Nos reunimos a las nueve en punto." },
+      { "term": "to", "spanish": "A, hacia.", "sentence": "Send this file to the manager.", "sentence_es": "Envía este archivo al gerente." },
+      { "term": "from", "spanish": "De, desde.", "sentence": "This valve is from a different supplier.", "sentence_es": "Esta válvula es de otro proveedor." },
+      { "term": "with", "spanish": "Con.", "sentence": "Fix the leak with this tool.", "sentence_es": "Arregla la fuga con esta herramienta." },
+      { "term": "for", "spanish": "Para, por.", "sentence": "This part is for the new pump.", "sentence_es": "Esta pieza es para la bomba nueva." },
+      { "term": "by", "spanish": "Por, junto a; para (fecha límite).", "sentence": "The report must be ready by Friday.", "sentence_es": "El informe debe estar listo para el viernes." },
+      { "term": "of", "spanish": "De (posesión, pertenencia).", "sentence": "The color of the pipe changed.", "sentence_es": "El color de la tubería cambió." },
+      { "term": "under", "spanish": "Debajo de.", "sentence": "The cable runs under the floor.", "sentence_es": "El cable pasa por debajo del piso." },
+      { "term": "between", "spanish": "Entre.", "sentence": "The valve is between the two tanks.", "sentence_es": "La válvula está entre los dos tanques." },
+      { "term": "over", "spanish": "Sobre, por encima de.", "sentence": "The crane moved the load over the wall.", "sentence_es": "La grúa movió la carga por encima del muro." },
+      { "term": "near", "spanish": "Cerca de.", "sentence": "Park the truck near the entrance.", "sentence_es": "Estaciona el camión cerca de la entrada." },
+      { "term": "into", "spanish": "Hacia dentro de, en.", "sentence": "Pour the liquid into the tank.", "sentence_es": "Vierte el líquido en el tanque." },
+      { "term": "without", "spanish": "Sin.", "sentence": "Never work without safety gloves.", "sentence_es": "Nunca trabajes sin guantes de seguridad." },
+      { "term": "about", "spanish": "Sobre, acerca de; aproximadamente.", "sentence": "Tell me about the incident.", "sentence_es": "Cuéntame sobre el incidente." }
+    ]
+  },
+  {
+    "week": 5,
+    "section_name": "Palabras de pregunta",
+    "words": [
+      { "term": "what", "spanish": "Qué.", "sentence": "What is the pressure right now?", "sentence_es": "¿Cuál es la presión ahora mismo?" },
+      { "term": "where", "spanish": "Dónde.", "sentence": "Where is the main control panel?", "sentence_es": "¿Dónde está el panel de control principal?" },
+      { "term": "when", "spanish": "Cuándo.", "sentence": "When does the next shift start?", "sentence_es": "¿Cuándo empieza el siguiente turno?" },
+      { "term": "who", "spanish": "Quién.", "sentence": "Who repaired this pump?", "sentence_es": "¿Quién reparó esta bomba?" },
+      { "term": "why", "spanish": "Por qué.", "sentence": "Why did the alarm go off?", "sentence_es": "¿Por qué sonó la alarma?" },
+      { "term": "how", "spanish": "Cómo.", "sentence": "How does this machine work?", "sentence_es": "¿Cómo funciona esta máquina?" },
+      { "term": "which", "spanish": "Cuál (entre opciones).", "sentence": "Which valve should I close first?", "sentence_es": "¿Cuál válvula debo cerrar primero?" },
+      { "term": "whose", "spanish": "De quién.", "sentence": "Whose helmet is this?", "sentence_es": "¿De quién es este casco?" },
+      { "term": "how many", "spanish": "Cuántos, cuántas.", "sentence": "How many workers are on this shift?", "sentence_es": "¿Cuántos trabajadores hay en este turno?" },
+      { "term": "how much", "spanish": "Cuánto, cuánta.", "sentence": "How much does this equipment cost?", "sentence_es": "¿Cuánto cuesta este equipo?" },
+      { "term": "how often", "spanish": "Con qué frecuencia.", "sentence": "How often do you check the filters?", "sentence_es": "¿Con qué frecuencia revisas los filtros?" },
+      { "term": "how long", "spanish": "Cuánto tiempo.", "sentence": "How long does the process take?", "sentence_es": "¿Cuánto tiempo tarda el proceso?" }
+    ]
+  },
+  {
+    "week": 6,
+    "section_name": "Auxiliares y modales",
+    "words": [
+      { "term": "do", "spanish": "Auxiliar para preguntas y negativas (presente).", "sentence": "Do you understand the instructions?", "sentence_es": "¿Entiendes las instrucciones?" },
+      { "term": "does", "spanish": "Auxiliar (él, ella; presente).", "sentence": "Does this pump need oil?", "sentence_es": "¿Esta bomba necesita aceite?" },
+      { "term": "did", "spanish": "Auxiliar (pasado).", "sentence": "Did you close the main valve?", "sentence_es": "¿Cerraste la válvula principal?" },
+      { "term": "don't", "spanish": "No (auxiliar negativo, presente).", "sentence": "I don't have the right tool.", "sentence_es": "No tengo la herramienta correcta." },
+      { "term": "doesn't", "spanish": "No (auxiliar negativo, él, ella).", "sentence": "This gauge doesn't work anymore.", "sentence_es": "Este medidor ya no funciona." },
+      { "term": "didn't", "spanish": "No (auxiliar negativo, pasado).", "sentence": "We didn't finish the inspection.", "sentence_es": "No terminamos la inspección." },
+      { "term": "have", "spanish": "Haber, tener.", "sentence": "I have three years of experience.", "sentence_es": "Tengo tres años de experiencia." },
+      { "term": "has", "spanish": "Haber, tener (él, ella).", "sentence": "She has the safety certificate.", "sentence_es": "Ella tiene el certificado de seguridad." },
+      { "term": "had", "spanish": "Haber, tener (pasado).", "sentence": "We had a problem last week.", "sentence_es": "Tuvimos un problema la semana pasada." },
+      { "term": "can", "spanish": "Poder (capacidad, permiso).", "sentence": "Can you fix this today?", "sentence_es": "¿Puedes arreglar esto hoy?" },
+      { "term": "can't", "spanish": "No poder.", "sentence": "I can't find the manual.", "sentence_es": "No puedo encontrar el manual." },
+      { "term": "will", "spanish": "Voluntad, futuro.", "sentence": "I will send the report tomorrow.", "sentence_es": "Enviaré el informe mañana." },
+      { "term": "won't", "spanish": "No (futuro negativo).", "sentence": "This part won't fit correctly.", "sentence_es": "Esta pieza no va a encajar correctamente." },
+      { "term": "should", "spanish": "Deber (recomendación).", "sentence": "You should wear your gloves.", "sentence_es": "Deberías ponerte los guantes." },
+      { "term": "must", "spanish": "Deber (obligación fuerte).", "sentence": "Workers must wear a helmet here.", "sentence_es": "Los trabajadores deben usar casco aquí." },
+      { "term": "there is", "spanish": "Hay (singular).", "sentence": "There is a leak in the pipe.", "sentence_es": "Hay una fuga en la tubería." },
+      { "term": "there are", "spanish": "Hay (plural).", "sentence": "There are three pumps in this area.", "sentence_es": "Hay tres bombas en esta área." },
+      { "term": "there was", "spanish": "Había, hubo (singular, pasado).", "sentence": "There was a problem last night.", "sentence_es": "Hubo un problema anoche." },
+      { "term": "there were", "spanish": "Había, hubo (plural, pasado).", "sentence": "There were many workers on site.", "sentence_es": "Había muchos trabajadores en el sitio." }
+    ]
+  }
+]

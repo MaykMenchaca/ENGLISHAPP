@@ -26,6 +26,7 @@ try:  # ejecutado como paquete (uvicorn api.index:app)
         TRACK_ACADEMIC,
         TRACK_BASIC,
         TRACK_ENGINEERING,
+        TRACK_STRUCTURE,
         Attempt,
         DictionaryEntry,
         Word,
@@ -55,6 +56,7 @@ except ImportError:  # ejecutado como script suelto (Vercel)
         TRACK_ACADEMIC,
         TRACK_BASIC,
         TRACK_ENGINEERING,
+        TRACK_STRUCTURE,
         Attempt,
         DictionaryEntry,
         Word,
@@ -292,6 +294,7 @@ def progress(week: Optional[int] = None, track: str = TRACK_ENGINEERING):
 
 
 TRACK_LABELS = {
+    TRACK_STRUCTURE: "Estructura",
     TRACK_ENGINEERING: "Ingeniería",
     TRACK_BASIC: "Inglés básico",
     TRACK_ACADEMIC: "Académico",
@@ -360,7 +363,7 @@ def stats():
             }
 
         out = []
-        for track_key in (TRACK_ENGINEERING, TRACK_BASIC, TRACK_ACADEMIC):
+        for track_key in (TRACK_STRUCTURE, TRACK_ENGINEERING, TRACK_BASIC, TRACK_ACADEMIC):
             data = buckets.get(track_key)
             if not data:
                 continue

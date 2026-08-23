@@ -33,6 +33,7 @@ from db import (  # noqa: E402
     TRACK_ACADEMIC,
     TRACK_BASIC,
     TRACK_ENGINEERING,
+    TRACK_STRUCTURE,
     Word,
     get_session,
     init_db,
@@ -46,6 +47,7 @@ TRANSLATIONS_FILE = SOURCE_DIR / "Traducciones-de-apoyo.txt"
 BASIC_GLOB = "basic_part*.json"
 EQUIPMENT_GLOB = "equipment_part*.json"
 ACADEMIC_GLOB = "academic_part*.json"
+STRUCTURE_GLOB = "structure_part*.json"
 
 ENGINEERING_SECTIONS = {
     1: "Cimientos",
@@ -204,15 +206,20 @@ def main():
         acad_created, acad_updated = seed_json_pack(session, ACADEMIC_GLOB, TRACK_ACADEMIC)
         print(f"  nuevas: {acad_created}   actualizadas: {acad_updated}")
 
+        print("\n== Estructura (pronombres, to be, artículos, preposiciones, preguntas, auxiliares) ==")
+        struct_created, struct_updated = seed_json_pack(session, STRUCTURE_GLOB, TRACK_STRUCTURE)
+        print(f"  nuevas: {struct_created}   actualizadas: {struct_updated}")
+
         session.commit()
 
         total = session.query(Word).count()
         eng = session.query(Word).filter_by(track=TRACK_ENGINEERING).count()
         basic = session.query(Word).filter_by(track=TRACK_BASIC).count()
         acad = session.query(Word).filter_by(track=TRACK_ACADEMIC).count()
+        struct = session.query(Word).filter_by(track=TRACK_STRUCTURE).count()
         print(
             f"\nTotal en la base de datos: {total}  "
-            f"({eng} ingeniería + {basic} básico + {acad} académico)"
+            f"({eng} ingeniería + {basic} básico + {acad} académico + {struct} estructura)"
         )
 
         if missing:
