@@ -484,8 +484,15 @@ def free_practice(payload: FreePracticeRequest):
 
         user_prompt = (
             f'El estudiante escribió este texto en inglés:\n"{answer}"\n\n'
-            + (f"Debía usar estas palabras: {', '.join(terms)}\n\n" if terms else "")
-            + "Corrígelo. Responde con este JSON:\n"
+            + (
+                f"Palabras sugeridas para esta práctica (no es obligatorio usarlas "
+                f"todas, ni siquiera usarlas): {', '.join(terms)}\n\n"
+                if terms
+                else ""
+            )
+            + "Corrígelo. Evalúa SOLO la gramática y si la idea se entiende — nunca "
+            "marques 'correct: false' solo porque falten palabras sugeridas. "
+            "Responde con este JSON:\n"
             '{"correct": true|false, "corrected": "el texto corregido en inglés", '
             '"feedback": "explicación en español de los 1-3 errores más importantes"}'
         )
@@ -514,6 +521,49 @@ def free_practice(payload: FreePracticeRequest):
         return {"correct": correct, "corrected": corrected, "feedback": feedback}
     finally:
         session.close()
+
+
+class SayItRequest(BaseModel):
+    spanish: str
+    # Lo que ya intentó escribir en inglés, si algo. Opcional: puede venir vacío
+    # cuando ni siquiera sabe por dónde empezar.
+    attempt: Optional[str] = None
+    provider: Optional[str] = Field(default=None, pattern="^(gemini|claude|anthropic|deepseek)$")
+
+
+@router.post("/say-it")
+def say_it(payload: SayItRequest):
+    """'¿Cómo digo esto?' — traduce una idea suelta, no ligada a una palabra de la
+    lección. No se guarda como intento: es consulta libre, no evaluación."""
+    spanish = payload.spanish.strip()
+    if not spanish:
+        raise HTTPException(status_code=400, detail="Escribe qué quieres decir")
+
+    attempt = (payload.attempt or "").strip()
+
+    user_prompt = (
+        f'El estudiante quiere decir esto en español: "{spanish}"\n'
+        + (f'Ya lo intentó así en inglés: "{attempt}"\n' if attempt else "")
+        + "Dale la forma natural de decirlo en inglés, una explicación breve en "
+        "español de por qué se dice así (si intentó algo, señala qué le falló), y "
+        "una variante alternativa (más formal o más coloquial, la que tenga más "
+        "sentido para la frase). Responde con este JSON:\n"
+        '{"english": "la forma natural de decirlo en inglés", '
+        '"feedback": "explicación breve en español", '
+        '"alternative": "una variante alternativa en inglés"}'
+    )
+
+    try:
+        raw = call_llm(SYSTEM_PROMPT, user_prompt, provider=payload.provider)
+        parsed = extract_json(raw)
+    except ProviderError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return {
+        "english": str(parsed.get("english", "")).strip(),
+        "feedback": str(parsed.get("feedback", "")).strip() or "Sin comentarios.",
+        "alternative": str(parsed.get("alternative", "")).strip(),
+    }
 
 
 # ---------------------------------------------------------------- diccionario personal

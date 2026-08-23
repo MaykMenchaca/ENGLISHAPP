@@ -7,6 +7,7 @@ import {
   getProgress,
   getProviders,
   logout as apiLogout,
+  sayIt,
   setUnauthorizedHandler,
 } from './api.js'
 import Login from './components/Login.jsx'
@@ -205,6 +206,11 @@ export default function App() {
     }
   }, [session, step, format])
 
+  // "¿Cómo digo esto?" — consulta libre, no ligada al ejercicio en curso.
+  function handleSayIt(spanish, attempt) {
+    return sayIt(spanish, attempt, provider)
+  }
+
   function exitSession() {
     setSession(null)
     setStep(0)
@@ -320,6 +326,7 @@ export default function App() {
               evaluate(current.word.id, current.mode, answer, format, provider)
             }
             onNext={() => setStep((s) => s + 1)}
+            onSayIt={handleSayIt}
           />
           <button className="btn ghost" onClick={exitSession}>
             Salir de la sesión
@@ -338,6 +345,7 @@ export default function App() {
             )
           }
           onFinish={() => setFinished(true)}
+          onSayIt={handleSayIt}
         />
       )}
 

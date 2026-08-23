@@ -412,6 +412,12 @@ body {
   font-size: 12.5px;
   color: var(--accent-deep);
 }
+/* Se pinta al detectar la palabra en el texto: confirma progreso, nunca bloquea. */
+.chip-used {
+  background: var(--good-bg);
+  border-color: var(--good);
+  color: var(--good-deep);
+}
 
 form {
   display: flex;
@@ -593,7 +599,8 @@ form {
   color: var(--ink);
 }
 .feedback-corrected,
-.feedback-es {
+.feedback-es,
+.feedback-expected {
   margin: 0;
   padding: 11px 13px;
   background: rgba(0, 0, 0, 0.28);
@@ -605,6 +612,11 @@ form {
 .feedback-es {
   color: var(--soft);
   font-style: italic;
+}
+.feedback-expected-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .feedback-label {
   display: block;
@@ -620,6 +632,46 @@ form {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* "¿Cómo digo esto?" — discreto hasta que se abre, para no competir con el
+   feedback del ejercicio, que es lo principal de la pantalla. */
+.say-it-toggle {
+  align-self: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--faint);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.say-it-toggle:hover {
+  color: var(--soft);
+}
+.say-it-box {
+  width: 100%;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.say-it-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.say-it-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.say-it-english {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .error {

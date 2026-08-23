@@ -1,16 +1,32 @@
 import SpeakButton from './SpeakButton.jsx'
+import SayItBox from './SayItBox.jsx'
 
 export default function FeedbackPanel({
   result,
   onNext,
   nextLabel = 'Siguiente',
   speakText,
+  expected,
+  expectedIsEnglish = false,
+  onSayIt,
+  sayItPrefill,
 }) {
   if (!result) return null
 
   return (
     <div className={`feedback ${result.correct ? 'ok' : 'bad'}`}>
       <p className="feedback-verdict">{result.correct ? 'Correcto' : 'Todavía no'}</p>
+
+      {/* Solo cuando falló: si acertó, ya sabe cuál era. */}
+      {!result.correct && expected && (
+        <p className="feedback-expected">
+          <span className="feedback-label">La respuesta era</span>
+          <span className="feedback-expected-row">
+            {expected}
+            {expectedIsEnglish && <SpeakButton text={expected} />}
+          </span>
+        </p>
+      )}
 
       {result.corrected && (
         <p className="feedback-corrected">
@@ -38,6 +54,8 @@ export default function FeedbackPanel({
           <SpeakButton text={speakText} label="Escuchar la oración completa" />
         )}
       </div>
+
+      {onSayIt && <SayItBox onSayIt={onSayIt} attemptPrefill={sayItPrefill} />}
     </div>
   )
 }

@@ -21,6 +21,7 @@ export default function ExerciseCard({
   options,
   onSubmit,
   onNext,
+  onSayIt,
   index,
   total,
 }) {
@@ -143,7 +144,17 @@ export default function ExerciseCard({
         {error && <p className="error">{error}</p>}
       </div>
 
-      <FeedbackPanel result={result} onNext={onNext} speakText={word.sentence} />
+      <FeedbackPanel
+        result={result}
+        onNext={onNext}
+        speakText={word.sentence}
+        // En Opciones ya se resalta la correcta entre los botones — repetirla
+        // aquí sería redundante. En Escribir es la única forma de verla.
+        expected={isChoice ? null : correctValue}
+        expectedIsEnglish={!isMeaning}
+        onSayIt={onSayIt}
+        sayItPrefill={isChoice ? '' : answer}
+      />
     </div>
   )
 }

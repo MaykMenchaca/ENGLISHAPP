@@ -83,3 +83,9 @@ export const freePractice = (wordIds, userAnswer, provider = null) =>
     method: 'POST',
     body: JSON.stringify({ word_ids: wordIds, user_answer: userAnswer, provider }),
   })
+
+export const sayIt = (spanish, attempt = '', provider = null) =>
+  request('/api/say-it', {
+    method: 'POST',
+    body: JSON.stringify({ spanish, attempt, provider }),
+  })
