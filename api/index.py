@@ -178,6 +178,8 @@ def health():
         "auth_configured": auth_configured(),
         "env_presentes": sorted(k for k in expected if os.environ.get(k)),
         "env_faltantes": sorted(k for k in expected if not os.environ.get(k)),
+        # Distingue "la clave existe pero viene vacía" de "la clave no llegó".
+        "claves_definidas": sorted(k for k in expected if k in os.environ),
         "vercel_env": {k: os.environ.get(k) for k in de_vercel},
         "total_variables": len(os.environ),
     }
