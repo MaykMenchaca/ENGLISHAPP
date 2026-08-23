@@ -1,13 +1,44 @@
 import { useEffect, useRef, useState } from 'react'
 import { speak, speechSupported } from '../speech.js'
 import { listen, listenSupported } from '../listen.js'
+import SpeakButton from './SpeakButton.jsx'
 
-// Frase de apertura fija: no gasta cuota de IA en saludar, y siempre arranca
-// la charla con una pregunta sencilla que cualquier principiante puede contestar.
-const OPENING_LINE = "Hi! I'm your English conversation partner. What's your name?"
+// Cada tema es solo una frase de apertura distinta — el backend no cambia,
+// solo con qué mensaje arranca la conversación.
+const TOPICS = [
+  {
+    id: 'free',
+    label: 'Charla libre',
+    opening: "Hi! I'm your English conversation partner. What's your name?",
+  },
+  {
+    id: 'routine',
+    label: 'Tu rutina diaria',
+    opening: "Hi! Let's talk about your daily routine. What time do you usually wake up?",
+  },
+  {
+    id: 'interview',
+    label: 'Entrevista de trabajo',
+    opening: "Hi! Let's practice a job interview. Can you tell me about yourself?",
+  },
+  {
+    id: 'engineer',
+    label: 'Tu trabajo como ingeniero',
+    opening:
+      "Hi! Let's talk about your work. What does an industrial engineer do at your company?",
+  },
+  {
+    id: 'toefl',
+    label: 'Estilo TOEFL: describe una experiencia',
+    opening:
+      "Hi! Let's practice for the TOEFL speaking section. Describe a time when you solved a difficult problem at work.",
+  },
+]
 
 export default function VoiceChat({ onBack, onConverse }) {
-  const [messages, setMessages] = useState([{ role: 'assistant', text: OPENING_LINE }])
+  // null = todavía no eligió tema, se muestra el menú antes de la conversación.
+  const [topic, setTopic] = useState(null)
+  const [messages, setMessages] = useState([])
   const [listening, setListening] = useState(false)
   const [interim, setInterim] = useState('')
   const [busy, setBusy] = useState(false)
@@ -16,23 +47,28 @@ export default function VoiceChat({ onBack, onConverse }) {
   // Empieza en inglés porque esto es práctica de speaking — el estudiante
   // cambia a español cuando necesite preguntar algo en su idioma.
   const [micLang, setMicLang] = useState('en-US')
+  // Lo que el micrófono creyó escuchar, en espera de que el estudiante lo
+  // confirme o lo corrija a mano antes de mandarlo — el reconocimiento con
+  // acento no nativo se equivoca seguido, y mandarlo sin revisar se siente
+  // como que la app "no entiende".
+  const [awaitingConfirm, setAwaitingConfirm] = useState(false)
+  const [draftText, setDraftText] = useState('')
+  const [draftAlternatives, setDraftAlternatives] = useState([])
   const stopRef = useRef(null)
   const bottomRef = useRef(null)
-  const spokeOpening = useRef(false)
-
-  useEffect(() => {
-    // Solo una vez, aunque el componente se vuelva a montar en modo estricto.
-    if (spokeOpening.current) return
-    spokeOpening.current = true
-    speak(OPENING_LINE)
-  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-  }, [messages, interim])
+  }, [messages, interim, awaitingConfirm])
 
   // Detiene el reconocimiento si el estudiante sale de la pantalla a medio hablar.
   useEffect(() => () => stopRef.current?.(), [])
+
+  function handlePickTopic(t) {
+    setTopic(t)
+    setMessages([{ role: 'assistant', text: t.opening }])
+    speak(t.opening)
+  }
 
   async function handleUserText(text) {
     const trimmed = text.trim()
@@ -52,9 +88,17 @@ export default function VoiceChat({ onBack, onConverse }) {
         if (res.correction) {
           updated[lastUserIndex] = { ...updated[lastUserIndex], correction: res.correction }
         }
-        return [...updated, { role: 'assistant', text: res.reply }]
+        return [
+          ...updated,
+          { role: 'assistant', text: res.reply, exampleEn: res.example_en || null },
+        ]
       })
       speak(res.reply, { lang: res.reply_lang })
+      if (res.example_en) {
+        // interrupt: false para que se encole después de la respuesta, sin
+        // cortarla — dos utterances seguidas, no una reemplazando a la otra.
+        speak(res.example_en, { lang: 'en', interrupt: false })
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -72,9 +116,11 @@ export default function VoiceChat({ onBack, onConverse }) {
     stopRef.current = listen({
       lang: micLang,
       onInterim: setInterim,
-      onResult: (text) => {
+      onResult: (text, alternatives) => {
         setListening(false)
-        handleUserText(text)
+        setDraftText(text)
+        setDraftAlternatives(alternatives)
+        setAwaitingConfirm(true)
       },
       onEnd: () => {
         setListening(false)
@@ -87,10 +133,56 @@ export default function VoiceChat({ onBack, onConverse }) {
     })
   }
 
+  function handleConfirmSend() {
+    const text = draftText
+    setAwaitingConfirm(false)
+    setDraftText('')
+    setDraftAlternatives([])
+    handleUserText(text)
+  }
+
+  function handleRetry() {
+    setAwaitingConfirm(false)
+    setDraftText('')
+    setDraftAlternatives([])
+  }
+
   function handleTextSubmit(event) {
     event.preventDefault()
     handleUserText(textInput)
     setTextInput('')
+  }
+
+  if (!topic) {
+    return (
+      <div className="stack">
+        <header className="masthead">
+          <p className="eyebrow">Práctica de speaking</p>
+          <h1>¿Qué quieres practicar hoy?</h1>
+          <p className="lede">
+            Elige un tema para arrancar la conversación. Puedes elegir otro la próxima vez
+            que entres.
+          </p>
+        </header>
+
+        <div className="voice-topics">
+          {TOPICS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className="action-btn"
+              onClick={() => handlePickTopic(t)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <button className="btn ghost" onClick={onBack}>
+          Volver a los bloques
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -110,6 +202,15 @@ export default function VoiceChat({ onBack, onConverse }) {
           <div key={i} className={`voice-msg ${m.role}`}>
             <p className="voice-msg-text">{m.text}</p>
             {m.correction && <p className="voice-correction">{m.correction}</p>}
+            {m.exampleEn && (
+              <p className="voice-example">
+                <span className="feedback-label">Así se dice</span>
+                <span className="feedback-expected-row">
+                  {m.exampleEn}
+                  <SpeakButton text={m.exampleEn} />
+                </span>
+              </p>
+            )}
           </div>
         ))}
         {interim && (
@@ -127,7 +228,45 @@ export default function VoiceChat({ onBack, onConverse }) {
 
       {error && <p className="error">{error}</p>}
 
-      {listenSupported() ? (
+      {awaitingConfirm ? (
+        <div className="voice-confirm">
+          <p className="voice-hint">¿Dijiste esto? Corrígelo si el micrófono se equivocó.</p>
+          <textarea
+            className="input textarea"
+            value={draftText}
+            onChange={(e) => setDraftText(e.target.value)}
+            rows={2}
+            autoFocus
+          />
+          {draftAlternatives.length > 0 && (
+            <div className="voice-alternatives">
+              {draftAlternatives.map((alt, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="chip"
+                  onClick={() => setDraftText(alt)}
+                >
+                  {alt}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="voice-confirm-actions">
+            <button type="button" className="btn ghost" onClick={handleRetry}>
+              Grabar de nuevo
+            </button>
+            <button
+              type="button"
+              className="btn primary"
+              onClick={handleConfirmSend}
+              disabled={!draftText.trim()}
+            >
+              Enviar
+            </button>
+          </div>
+        </div>
+      ) : listenSupported() ? (
         <div className="voice-controls">
           <div className="switch-row">
             <span className="switch-label">En qué idioma vas a hablar</span>
@@ -155,7 +294,7 @@ export default function VoiceChat({ onBack, onConverse }) {
             className={`voice-mic ${listening ? 'listening' : ''}`}
             onClick={toggleListening}
             disabled={busy}
-            aria-label={listening ? 'Detener y enviar' : 'Hablar'}
+            aria-label={listening ? 'Detener y revisar' : 'Hablar'}
           >
             <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
               <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor" />
@@ -170,7 +309,7 @@ export default function VoiceChat({ onBack, onConverse }) {
             </svg>
           </button>
           <p className="voice-hint">
-            {listening ? 'Escuchando… toca de nuevo para enviar' : 'Toca para hablar'}
+            {listening ? 'Escuchando… toca de nuevo cuando termines' : 'Toca para hablar'}
           </p>
         </div>
       ) : (

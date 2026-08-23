@@ -588,7 +588,12 @@ CONVERSATION_SYSTEM_PROMPT = (
     "4. El mensaje del estudiante viene de reconocimiento de voz: nunca corrijas "
     "pronunciación (no la puedes oír, solo lees texto) ni errores de puntuación o "
     "mayúsculas — pueden ser el micrófono, no el estudiante.\n"
-    "5. Devuelves EXCLUSIVAMENTE un objeto JSON, sin texto adicional ni markdown."
+    "5. Si corregiste un error de inglés, o si el estudiante preguntó cómo se dice "
+    "algo (en cualquier idioma), pon en 'example_en' SOLO el fragmento en inglés que "
+    "debería aprender a decir — la forma correcta de su frase, o la respuesta directa "
+    "a su pregunta. Nada más que ese fragmento, sin explicación alrededor. Si no aplica "
+    "ninguno de los dos casos, 'example_en' va vacío.\n"
+    "6. Devuelves EXCLUSIVAMENTE un objeto JSON, sin texto adicional ni markdown."
 )
 # La conversación necesita algo más de aire que corregir una frase suelta —
 # reply + correction juntos, con margen para una respuesta de dos frases.
@@ -629,7 +634,9 @@ def conversation(payload: ConversationRequest):
         'idioma del estudiante", '
         '"reply_lang": "en o es, el idioma en el que escribiste reply", '
         '"correction": "explicación breve en español del error de inglés del '
-        'estudiante, o cadena vacía si no hubo o si escribió en español"}'
+        'estudiante, o cadena vacía si no hubo o si escribió en español", '
+        '"example_en": "SOLO el fragmento en inglés a aprender (la frase corregida, o '
+        'la respuesta a su \'¿cómo se dice...?\'), o cadena vacía si no aplica"}'
     )
 
     try:
@@ -652,6 +659,7 @@ def conversation(payload: ConversationRequest):
         or "Sorry, could you say that again?",
         "reply_lang": reply_lang,
         "correction": str(parsed.get("correction", "")).strip(),
+        "example_en": str(parsed.get("example_en", "")).strip(),
     }
 
 

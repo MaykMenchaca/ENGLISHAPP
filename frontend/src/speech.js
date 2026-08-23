@@ -54,11 +54,14 @@ export function speechSupported() {
 /**
  * Lee un texto en voz alta.
  * @param {string} text
- * @param {{rate?: number, lang?: 'en'|'es'}} [options] rate por debajo de 1 = más
- *   lento, útil para aprender. lang por default es 'en' — el resto de la app nunca
- *   necesita tocar esto, solo el chat de voz pide 'es'.
+ * @param {{rate?: number, lang?: 'en'|'es', interrupt?: boolean}} [options] rate por
+ *   debajo de 1 = más lento, útil para aprender. lang por default es 'en' — el resto
+ *   de la app nunca necesita tocar esto, solo el chat de voz pide 'es'. interrupt
+ *   (default true) corta cualquier audio en curso antes de empezar; en false se
+ *   encola detrás, para leer dos textos seguidos sin que el segundo corte al primero
+ *   (p. ej. la respuesta y luego, aparte, el fragmento de ejemplo en inglés).
  */
-export function speak(text, { rate = 0.9, lang = 'en' } = {}) {
+export function speak(text, { rate = 0.9, lang = 'en', interrupt = true } = {}) {
   if (!speechSupported() || !text) return
 
   ensureVoices()
@@ -66,7 +69,7 @@ export function speak(text, { rate = 0.9, lang = 'en' } = {}) {
   const voice = cachedVoices[lang]
 
   // Sin esto, tocar varias veces seguidas encola los audios y se acumulan.
-  window.speechSynthesis.cancel()
+  if (interrupt) window.speechSynthesis.cancel()
 
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.lang = voice?.lang || (lang === 'es' ? 'es-MX' : 'en-US')
