@@ -19,6 +19,7 @@ export function listenSupported() {
  * conversación real por turnos, no una grabación abierta.
  *
  * @param {{
+ *   lang?: string,                       // 'en-US' | 'es-MX'; default 'en-US'
  *   onInterim?: (text: string) => void,  // mientras habla, texto parcial
  *   onResult: (text: string) => void,    // al terminar, texto final (no vacío)
  *   onEnd?: () => void,                  // siempre se llama al cerrar, haya o no resultado
@@ -26,14 +27,17 @@ export function listenSupported() {
  * }} handlers
  * @returns {() => void} stop — cancela la escucha en curso
  */
-export function listen({ onInterim, onResult, onEnd, onError }) {
+export function listen({ lang = 'en-US', onInterim, onResult, onEnd, onError }) {
   if (!SpeechRecognitionImpl) {
     onError?.('Tu navegador no puede escuchar por voz. Usa Chrome o Edge.')
     return () => {}
   }
 
   const recognition = new SpeechRecognitionImpl()
-  recognition.lang = 'en-US'
+  // El navegador solo escucha UN idioma por sesión — no adivina. Si el
+  // estudiante habla español con esto en inglés, la transcripción sale
+  // corrupta (intenta encajar los sonidos en fonemas de inglés).
+  recognition.lang = lang
   recognition.interimResults = true
   recognition.maxAlternatives = 1
   recognition.continuous = false

@@ -574,12 +574,17 @@ CONVERSATION_SYSTEM_PROMPT = (
     "mexicano de nivel principiante-intermedio (A2-B1) que se prepara para el TOEFL "
     "iBT, que tiene una sección de speaking.\n"
     "Reglas que nunca rompes:\n"
-    "1. Respondes SIEMPRE en inglés simple y natural, en 1 o 2 frases cortas.\n"
-    "2. SIEMPRE terminas tu respuesta con una pregunta, para que la conversación "
-    "siga — nunca la dejas morir con una simple afirmación.\n"
+    "1. El estudiante puede hablarte en inglés o en español (elige el idioma con un "
+    "interruptor antes de hablar). Respondes SIEMPRE en el MISMO idioma en el que "
+    "está escrito su último turno — si escribió en español, contestas en español; "
+    "si escribió en inglés, contestas en inglés. Siempre en 1 o 2 frases cortas y "
+    "naturales en ese idioma.\n"
+    "2. SIEMPRE terminas tu respuesta con una pregunta EN ESE MISMO IDIOMA, para que "
+    "la conversación siga — nunca la dejas morir con una simple afirmación.\n"
     "3. Revisas el ÚLTIMO mensaje del estudiante: si tiene un error real de gramática "
-    "o vocabulario, lo señalas en español, breve y sin ser punitivo. Si está bien o "
-    "es solo una variación aceptable, dejas la corrección vacía.\n"
+    "o vocabulario EN INGLÉS, lo señalas en español, breve y sin ser punitivo. Si "
+    "escribió en español, o si su inglés está bien o es solo una variación aceptable, "
+    "dejas la corrección vacía.\n"
     "4. El mensaje del estudiante viene de reconocimiento de voz: nunca corrijas "
     "pronunciación (no la puedes oír, solo lees texto) ni errores de puntuación o "
     "mayúsculas — pueden ser el micrófono, no el estudiante.\n"
@@ -618,11 +623,13 @@ def conversation(payload: ConversationRequest):
 
     user_prompt = (
         f"Conversación hasta ahora:\n{transcript}\n\n"
-        "Responde como el tutor, siguiendo la conversación de forma natural. "
-        "Responde con este JSON:\n"
-        '{"reply": "tu respuesta en inglés, 1-2 frases, terminando en pregunta", '
-        '"correction": "explicación breve en español del error del estudiante, '
-        'o cadena vacía si no hubo"}'
+        "Responde como el tutor, siguiendo la conversación de forma natural, en el "
+        "mismo idioma del último turno del estudiante. Responde con este JSON:\n"
+        '{"reply": "tu respuesta, 1-2 frases, terminando en pregunta, en el mismo '
+        'idioma del estudiante", '
+        '"reply_lang": "en o es, el idioma en el que escribiste reply", '
+        '"correction": "explicación breve en español del error de inglés del '
+        'estudiante, o cadena vacía si no hubo o si escribió en español"}'
     )
 
     try:
@@ -636,9 +643,14 @@ def conversation(payload: ConversationRequest):
     except ProviderError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
+    reply_lang = str(parsed.get("reply_lang", "")).strip().lower()
+    if reply_lang not in ("en", "es"):
+        reply_lang = "en"  # el modelo lo decide, pero nunca confiamos ciegamente
+
     return {
         "reply": str(parsed.get("reply", "")).strip()
         or "Sorry, could you say that again?",
+        "reply_lang": reply_lang,
         "correction": str(parsed.get("correction", "")).strip(),
     }
 

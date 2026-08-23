@@ -5,23 +5,28 @@
  * hay voces en-US instaladas localmente, así que funciona incluso sin internet.
  */
 
-let cachedVoice = null
+// Una voz cacheada por idioma ('en' | 'es'). El resto de la app solo pide inglés
+// (vocabulario, oraciones de ejemplo); el chat de voz es el único que también
+// pide español, para leer sus propias respuestas bilingües.
+const cachedVoices = {}
 let voicesReady = false
 
-/** Elige la mejor voz en inglés disponible. Prioriza en-US y voces locales
- *  (las remotas de Google no funcionan sin conexión). */
-function pickVoice() {
+/** Elige la mejor voz disponible para el prefijo de idioma dado. Prioriza la
+ *  variante regional más común y las voces locales (las remotas de Google no
+ *  funcionan sin conexión). */
+function pickVoice(langPrefix) {
   const voices = window.speechSynthesis.getVoices()
   if (!voices.length) return null
 
-  const english = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith('en'))
-  if (!english.length) return null
+  const matches = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith(langPrefix))
+  if (!matches.length) return null
 
+  const preferred = langPrefix === 'es' ? 'es-mx' : 'en-us'
   return (
-    english.find((v) => v.lang.toLowerCase() === 'en-us' && v.localService) ||
-    english.find((v) => v.lang.toLowerCase() === 'en-us') ||
-    english.find((v) => v.localService) ||
-    english[0]
+    matches.find((v) => v.lang.toLowerCase() === preferred && v.localService) ||
+    matches.find((v) => v.lang.toLowerCase() === preferred) ||
+    matches.find((v) => v.localService) ||
+    matches[0]
   )
 }
 
@@ -29,14 +34,16 @@ function pickVoice() {
  *  devolver una lista vacía. Se resuelve escuchando voiceschanged. */
 function ensureVoices() {
   if (voicesReady) return
-  cachedVoice = pickVoice()
-  if (cachedVoice) {
+  cachedVoices.en = pickVoice('en')
+  cachedVoices.es = pickVoice('es')
+  if (cachedVoices.en) {
     voicesReady = true
     return
   }
   window.speechSynthesis.onvoiceschanged = () => {
-    cachedVoice = pickVoice()
-    voicesReady = !!cachedVoice
+    cachedVoices.en = pickVoice('en')
+    cachedVoices.es = pickVoice('es')
+    voicesReady = !!cachedVoices.en
   }
 }
 
@@ -45,24 +52,27 @@ export function speechSupported() {
 }
 
 /**
- * Lee un texto en inglés en voz alta.
+ * Lee un texto en voz alta.
  * @param {string} text
- * @param {{rate?: number}} [options] rate por debajo de 1 = más lento, útil para aprender.
+ * @param {{rate?: number, lang?: 'en'|'es'}} [options] rate por debajo de 1 = más
+ *   lento, útil para aprender. lang por default es 'en' — el resto de la app nunca
+ *   necesita tocar esto, solo el chat de voz pide 'es'.
  */
-export function speak(text, { rate = 0.9 } = {}) {
+export function speak(text, { rate = 0.9, lang = 'en' } = {}) {
   if (!speechSupported() || !text) return
 
   ensureVoices()
-  if (!cachedVoice) cachedVoice = pickVoice()
+  if (!cachedVoices[lang]) cachedVoices[lang] = pickVoice(lang)
+  const voice = cachedVoices[lang]
 
   // Sin esto, tocar varias veces seguidas encola los audios y se acumulan.
   window.speechSynthesis.cancel()
 
   const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = cachedVoice?.lang || 'en-US'
+  utterance.lang = voice?.lang || (lang === 'es' ? 'es-MX' : 'en-US')
   // Marcar el idioma no basta: sin voz explícita el navegador puede leer inglés
   // con la voz en español del sistema, y suena incomprensible.
-  if (cachedVoice) utterance.voice = cachedVoice
+  if (voice) utterance.voice = voice
   utterance.rate = rate
   window.speechSynthesis.speak(utterance)
 }

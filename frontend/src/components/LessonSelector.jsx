@@ -95,7 +95,7 @@ export default function LessonSelector({
         </div>
       )}
 
-      <div className="tabs" role="group" aria-label="Tipo de vocabulario">
+      <div className="track-tabs" role="group" aria-label="Tipo de vocabulario">
         <button
           type="button"
           className={track === 'structure' ? 'active' : ''}
@@ -124,22 +124,25 @@ export default function LessonSelector({
         >
           Académico
         </button>
-        <button type="button" className="tab-side" onClick={onRuta}>
+      </div>
+
+      <div className="action-bar" role="group" aria-label="Herramientas">
+        <button type="button" className="action-btn" onClick={onRuta}>
           Ruta
         </button>
-        <button type="button" onClick={onStats}>
+        <button type="button" className="action-btn" onClick={onStats}>
           Progreso
         </button>
-        <button type="button" onClick={onGame}>
+        <button type="button" className="action-btn" onClick={onGame}>
           Jugar
         </button>
-        <button type="button" onClick={onVoice}>
+        <button type="button" className="action-btn" onClick={onVoice}>
           Hablar
         </button>
-        <button type="button" onClick={onDictionary}>
+        <button type="button" className="action-btn" onClick={onDictionary}>
           Mi diccionario
         </button>
-        <button type="button" className="tab-logout" onClick={onLogout}>
+        <button type="button" className="action-btn logout" onClick={onLogout}>
           Salir
         </button>
       </div>

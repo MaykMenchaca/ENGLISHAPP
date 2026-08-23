@@ -13,6 +13,9 @@ export default function VoiceChat({ onBack, onConverse }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const [textInput, setTextInput] = useState('')
+  // Empieza en inglés porque esto es práctica de speaking — el estudiante
+  // cambia a español cuando necesite preguntar algo en su idioma.
+  const [micLang, setMicLang] = useState('en-US')
   const stopRef = useRef(null)
   const bottomRef = useRef(null)
   const spokeOpening = useRef(false)
@@ -51,7 +54,7 @@ export default function VoiceChat({ onBack, onConverse }) {
         }
         return [...updated, { role: 'assistant', text: res.reply }]
       })
-      speak(res.reply)
+      speak(res.reply, { lang: res.reply_lang })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -67,6 +70,7 @@ export default function VoiceChat({ onBack, onConverse }) {
     setError(null)
     setListening(true)
     stopRef.current = listen({
+      lang: micLang,
       onInterim: setInterim,
       onResult: (text) => {
         setListening(false)
@@ -96,8 +100,8 @@ export default function VoiceChat({ onBack, onConverse }) {
         <h1>Habla en inglés</h1>
         <p className="lede">
           {listenSupported()
-            ? 'Toca el micrófono y contesta en inglés. Te corrijo en español debajo de lo que dijiste, y te sigo la conversación.'
-            : 'Tu navegador no puede escucharte por voz — usa Chrome o Edge para eso. Por ahora puedes escribir tus respuestas.'}
+            ? 'Toca el micrófono y contesta en inglés o en español — elige el idioma antes de hablar. Te corrijo en español debajo de lo que dijiste, y te sigo la conversación en el idioma que uses.'
+            : 'Tu navegador no puede escucharte por voz — usa Chrome o Edge para eso. Por ahora puedes escribir tus respuestas, en inglés o en español.'}
         </p>
       </header>
 
@@ -125,6 +129,27 @@ export default function VoiceChat({ onBack, onConverse }) {
 
       {listenSupported() ? (
         <div className="voice-controls">
+          <div className="switch-row">
+            <span className="switch-label">En qué idioma vas a hablar</span>
+            <div className="switch" role="group" aria-label="Idioma del micrófono">
+              <button
+                type="button"
+                className={micLang === 'en-US' ? 'active' : ''}
+                onClick={() => setMicLang('en-US')}
+                disabled={listening || busy}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                className={micLang === 'es-MX' ? 'active' : ''}
+                onClick={() => setMicLang('es-MX')}
+                disabled={listening || busy}
+              >
+                Español
+              </button>
+            </div>
+          </div>
           <button
             type="button"
             className={`voice-mic ${listening ? 'listening' : ''}`}
