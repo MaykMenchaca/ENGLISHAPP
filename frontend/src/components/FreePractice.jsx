@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import FeedbackPanel from './FeedbackPanel.jsx'
+import { playCorrect, playWrong } from '../sounds.js'
 
 function normalize(value) {
   return value.toLowerCase().trim()
@@ -32,7 +33,10 @@ export default function FreePractice({ words, onSubmit, onFinish, onSayIt }) {
     setBusy(true)
     setError(null)
     try {
-      setResult(await onSubmit(text.trim()))
+      const res = await onSubmit(text.trim())
+      setResult(res)
+      if (res.correct) playCorrect()
+      else playWrong()
     } catch (err) {
       setError(err.message)
     } finally {

@@ -20,6 +20,7 @@ import GamePicker from './components/GamePicker.jsx'
 import Stats from './components/Stats.jsx'
 import RutaScreen from './components/RutaScreen.jsx'
 import VoiceChat from './components/VoiceChat.jsx'
+import { setSoundsEnabled, soundsEnabled } from './sounds.js'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -94,6 +95,15 @@ export default function App() {
   function changeProvider(next) {
     setProvider(next)
     localStorage.setItem('tutor-provider', next)
+  }
+
+  // El valor real vive en sounds.js (localStorage) para que MatchGame y demás
+  // lo lean sin pasarlo por props; aquí solo se espeja para repintar el botón.
+  const [sounds, setSounds] = useState(() => soundsEnabled())
+
+  function changeSounds(next) {
+    setSounds(next)
+    setSoundsEnabled(next)
   }
 
   // 'structure' | 'engineering' | 'basic' | 'academic'. Empieza en 'structure'
@@ -339,6 +349,8 @@ export default function App() {
           loading={loading}
           format={format}
           onFormat={changeFormat}
+          sounds={sounds}
+          onSounds={changeSounds}
           providerOptions={providerOptions}
           provider={provider}
           onProvider={changeProvider}

@@ -10,6 +10,9 @@
 // pide español, para leer sus propias respuestas bilingües.
 const cachedVoices = {}
 let voicesReady = false
+// Cada llamada a speak() con interrupt toma un número; si llega otra antes de
+// que la anterior alcance a sonar, la vieja se descarta en vez de encolarse.
+let pendingRequest = 0
 
 /** Elige la mejor voz disponible para el prefijo de idioma dado. Prioriza la
  *  variante regional más común y las voces locales (las remotas de Google no
@@ -68,16 +71,37 @@ export function speak(text, { rate = 0.9, lang = 'en', interrupt = true } = {}) 
   if (!cachedVoices[lang]) cachedVoices[lang] = pickVoice(lang)
   const voice = cachedVoices[lang]
 
-  // Sin esto, tocar varias veces seguidas encola los audios y se acumulan.
-  if (interrupt) window.speechSynthesis.cancel()
-
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.lang = voice?.lang || (lang === 'es' ? 'es-MX' : 'en-US')
   // Marcar el idioma no basta: sin voz explícita el navegador puede leer inglés
   // con la voz en español del sistema, y suena incomprensible.
   if (voice) utterance.voice = voice
   utterance.rate = rate
-  window.speechSynthesis.speak(utterance)
+
+  if (!interrupt) {
+    window.speechSynthesis.speak(utterance)
+    return
+  }
+
+  // Chrome no procesa bien cancel() seguido de speak() en el mismo tick: el
+  // audio viejo se queda en la cola y suena después, ya en otro ejercicio —
+  // que es justo el bug de "lee otras oraciones que no tienen nada que ver".
+  // Cancelar y programar en el siguiente tick le da tiempo a vaciar la cola.
+  window.speechSynthesis.cancel()
+  const request = ++pendingRequest
+  setTimeout(() => {
+    // Si mientras tanto pidieron otro audio (o un stopSpeaking), este ya no va.
+    if (request !== pendingRequest) return
+    window.speechSynthesis.speak(utterance)
+  }, 0)
+}
+
+/** Corta cualquier audio en curso o en cola. Se llama al cambiar de ejercicio
+ *  para que nada de la palabra anterior alcance a la siguiente. */
+export function stopSpeaking() {
+  if (!speechSupported()) return
+  pendingRequest++ // invalida lo que estuviera programado
+  window.speechSynthesis.cancel()
 }
 
 // Se dispara temprano para que la primera pulsación ya tenga la voz lista.

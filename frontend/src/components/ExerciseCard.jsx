@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import FeedbackPanel from './FeedbackPanel.jsx'
 import SpeakButton from './SpeakButton.jsx'
+import { speak, stopSpeaking } from '../speech.js'
+import { playCorrect, playWrong } from '../sounds.js'
 
 /** Sustituye el término dentro de la oración por una línea. */
 function blankOut(sentence, term) {
@@ -42,14 +44,28 @@ export default function ExerciseCard({
     setResult(null)
     setError(null)
     if (!isChoice) inputRef.current?.focus()
-  }, [word.id, mode, isChoice])
+
+    // Corta cualquier audio del ejercicio anterior: si no, la oración de la
+    // palabra pasada alcanza a sonar aquí y parece que lee cosas al azar.
+    stopSpeaking()
+
+    // En «¿Qué significa?» oír la palabra no delata nada — al contrario, ata
+    // sonido y escritura desde el primer segundo. En «Completa la oración» no
+    // se lee sola nunca: la oración entera contiene justo la respuesta.
+    if (isMeaning) speak(word.term)
+
+    return stopSpeaking
+  }, [word.id, word.term, mode, isChoice, isMeaning])
 
   async function send(value) {
     if (busy || result) return
     setBusy(true)
     setError(null)
     try {
-      setResult(await onSubmit(value))
+      const res = await onSubmit(value)
+      setResult(res)
+      if (res.correct) playCorrect()
+      else playWrong()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -152,6 +168,10 @@ export default function ExerciseCard({
         // aquí sería redundante. En Escribir es la única forma de verla.
         expected={isChoice ? null : correctValue}
         expectedIsEnglish={!isMeaning}
+        // La palabra, siempre y en los dos formatos: acertando o fallando, es
+        // la única manera de oírla sola en «Completa la oración» — el otro
+        // botón lee la oración entera, que es lo que confundía.
+        term={word.term}
         onSayIt={onSayIt}
         sayItPrefill={isChoice ? '' : answer}
       />

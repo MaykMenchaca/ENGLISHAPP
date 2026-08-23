@@ -713,6 +713,26 @@ form {
   align-items: center;
   gap: 10px;
 }
+/* Dos bocinas etiquetadas: la palabra sola y la oración completa. Antes solo
+   estaba la de la oración y se confundía con la de la palabra. */
+.feedback-audio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.feedback-audio-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feedback-audio-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
 
 /* "¿Cómo digo esto?" — discreto hasta que se abre, para no competir con el
    feedback del ejercicio, que es lo principal de la pantalla. */

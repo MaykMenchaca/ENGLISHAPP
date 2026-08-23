@@ -8,6 +8,7 @@ export default function FeedbackPanel({
   speakText,
   expected,
   expectedIsEnglish = false,
+  term,
   onSayIt,
   sayItPrefill,
 }) {
@@ -45,14 +46,29 @@ export default function FeedbackPanel({
         </p>
       )}
 
+      {/* Dos audios distintos y etiquetados, para que quede claro cuál es cuál:
+          antes solo estaba el de la oración y se confundía con la palabra. */}
+      {(term || speakText) && (
+        <div className="feedback-audio">
+          {term && (
+            <span className="feedback-audio-item">
+              <span className="feedback-audio-label">La palabra</span>
+              <SpeakButton text={term} label={`Escuchar «${term}»`} size="sm" />
+            </span>
+          )}
+          {speakText && (
+            <span className="feedback-audio-item">
+              <span className="feedback-audio-label">La oración completa</span>
+              <SpeakButton text={speakText} label="Escuchar la oración completa" size="sm" />
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="feedback-actions">
         <button className="btn primary" onClick={onNext} autoFocus>
           {nextLabel}
         </button>
-        {/* Aquí ya se reveló la respuesta, así que oír la oración no la delata */}
-        {speakText && (
-          <SpeakButton text={speakText} label="Escuchar la oración completa" />
-        )}
       </div>
 
       {onSayIt && <SayItBox onSayIt={onSayIt} attemptPrefill={sayItPrefill} />}

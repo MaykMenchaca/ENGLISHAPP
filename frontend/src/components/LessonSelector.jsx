@@ -23,6 +23,8 @@ export default function LessonSelector({
   loading,
   format,
   onFormat,
+  sounds,
+  onSounds,
   providerOptions,
   provider,
   onProvider,
@@ -169,6 +171,31 @@ export default function LessonSelector({
           {format === 'choice'
             ? 'Eliges entre 4 opciones. Respuesta inmediata, ideal para empezar.'
             : 'Escribes tu respuesta y la IA te corrige en español. Cuesta más, enseña más.'}
+        </p>
+      </div>
+
+      <div className="switch-row">
+        <span className="switch-label">Sonidos</span>
+        <div className="switch" role="group" aria-label="Sonidos de acierto y error">
+          <button
+            type="button"
+            className={sounds ? 'active' : ''}
+            onClick={() => onSounds(true)}
+          >
+            Activados
+          </button>
+          <button
+            type="button"
+            className={!sounds ? 'active' : ''}
+            onClick={() => onSounds(false)}
+          >
+            Silencio
+          </button>
+        </div>
+        <p className="switch-hint">
+          {sounds
+            ? 'Suena un tono al acertar y otro distinto al fallar, también en el juego.'
+            : 'Sin tonos de acierto ni de error. La pronunciación en voz alta sigue funcionando.'}
         </p>
       </div>
 

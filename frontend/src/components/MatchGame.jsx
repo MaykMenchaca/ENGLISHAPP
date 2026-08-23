@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getProgress } from '../api.js'
+import { playCorrect, playFinish, playWrong } from '../sounds.js'
 
 const PAIRS_PER_ROUND = 8
 
@@ -89,6 +90,9 @@ export default function MatchGame({ track, week, sectionName, onBack }) {
       const finalMs = startedAt ? Date.now() - startedAt : 0
       setElapsed(finalMs)
       setFinished(true)
+      // Encima del acierto del último par, pero son notas del mismo acorde:
+      // se oye como un remate, no como dos sonidos peleándose.
+      playFinish()
       if (bestMs === null || finalMs < bestMs) {
         setBestMs(finalMs)
         localStorage.setItem(bestTimeKey(track, week), String(finalMs))
@@ -113,12 +117,14 @@ export default function MatchGame({ track, week, sectionName, onBack }) {
     const b = round.tiles.find((t) => t.key === bKey)
 
     if (a.pairId === b.pairId && a.side !== b.side) {
+      playCorrect()
       setTimeout(() => {
         setSolved((prev) => new Set(prev).add(a.pairId))
         setSelected([])
         busyRef.current = false
       }, 220) // deja ver el par en verde un instante antes de que desaparezca
     } else {
+      playWrong()
       setWrongPair([aKey, bKey])
       setTimeout(() => {
         setWrongPair(null)
