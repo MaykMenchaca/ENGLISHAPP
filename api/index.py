@@ -158,7 +158,24 @@ class LoginRequest(BaseModel):
 
 @public_router.get("/health")
 def health():
-    return {"ok": True, "auth_configured": auth_configured()}
+    # Diagnóstico TEMPORAL del despliegue: solo dice qué nombres de variable
+    # llegaron al servidor, nunca su contenido. Quitar cuando la app funcione.
+    expected = (
+        "POSTGRES_URL",
+        "PROVIDER",
+        "GEMINI_API_KEY",
+        "DEEPSEEK_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "AUTH_USERNAME",
+        "AUTH_PASSWORD_HASH",
+        "SESSION_SECRET",
+    )
+    return {
+        "ok": True,
+        "auth_configured": auth_configured(),
+        "env_presentes": sorted(k for k in expected if os.environ.get(k)),
+        "env_faltantes": sorted(k for k in expected if not os.environ.get(k)),
+    }
 
 
 @public_router.get("/me")
