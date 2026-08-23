@@ -1074,11 +1074,112 @@ code {
   color: var(--faint);
 }
 
+/* ---------- chat de voz ---------- */
+.voice-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+.voice-msg {
+  max-width: 80%;
+  padding: 11px 15px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.voice-msg.assistant {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 4px;
+}
+.voice-msg.user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-bottom-right-radius: 4px;
+}
+.voice-msg-text {
+  margin: 0;
+}
+.voice-msg.interim {
+  opacity: 0.55;
+}
+.voice-correction {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 13px;
+  opacity: 0.9;
+}
+.voice-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.voice-mic {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--surface-2);
+  color: var(--accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease, border-color 140ms ease;
+}
+.voice-mic:hover:not(:disabled) {
+  background: var(--surface);
+}
+.voice-mic:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.voice-mic.listening {
+  background: var(--accent);
+  color: var(--accent-ink);
+  animation: voice-pulse 1.4s ease-in-out infinite;
+}
+.voice-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--faint);
+  text-align: center;
+}
+.voice-fallback {
+  display: flex;
+  gap: 10px;
+}
+.voice-fallback .input {
+  flex: 1 1 auto;
+}
+
+@keyframes voice-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
   }
   .match-tile.wrong {
+    animation: none;
+  }
+  .voice-mic.listening {
     animation: none;
   }
 }

@@ -31,6 +31,7 @@ export default function LessonSelector({
   onDictionary,
   onLogout,
   onGame,
+  onVoice,
   onStats,
   onRuta,
 }) {
@@ -131,6 +132,9 @@ export default function LessonSelector({
         </button>
         <button type="button" onClick={onGame}>
           Jugar
+        </button>
+        <button type="button" onClick={onVoice}>
+          Hablar
         </button>
         <button type="button" onClick={onDictionary}>
           Mi diccionario

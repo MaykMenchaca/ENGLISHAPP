@@ -569,6 +569,80 @@ def say_it(payload: SayItRequest):
     }
 
 
+CONVERSATION_SYSTEM_PROMPT = (
+    "Eres un compañero de conversación en inglés para un estudiante hispanohablante "
+    "mexicano de nivel principiante-intermedio (A2-B1) que se prepara para el TOEFL "
+    "iBT, que tiene una sección de speaking.\n"
+    "Reglas que nunca rompes:\n"
+    "1. Respondes SIEMPRE en inglés simple y natural, en 1 o 2 frases cortas.\n"
+    "2. SIEMPRE terminas tu respuesta con una pregunta, para que la conversación "
+    "siga — nunca la dejas morir con una simple afirmación.\n"
+    "3. Revisas el ÚLTIMO mensaje del estudiante: si tiene un error real de gramática "
+    "o vocabulario, lo señalas en español, breve y sin ser punitivo. Si está bien o "
+    "es solo una variación aceptable, dejas la corrección vacía.\n"
+    "4. El mensaje del estudiante viene de reconocimiento de voz: nunca corrijas "
+    "pronunciación (no la puedes oír, solo lees texto) ni errores de puntuación o "
+    "mayúsculas — pueden ser el micrófono, no el estudiante.\n"
+    "5. Devuelves EXCLUSIVAMENTE un objeto JSON, sin texto adicional ni markdown."
+)
+# La conversación necesita algo más de aire que corregir una frase suelta —
+# reply + correction juntos, con margen para una respuesta de dos frases.
+CONVERSATION_MAX_TOKENS = 400
+
+
+class ConversationMessage(BaseModel):
+    role: str = Field(pattern="^(user|assistant)$")
+    text: str
+
+
+class ConversationRequest(BaseModel):
+    # Los últimos ~8 turnos, del más viejo al más nuevo. El último debe ser
+    # del estudiante: es lo que el tutor tiene que contestar.
+    messages: List[ConversationMessage]
+    provider: Optional[str] = Field(default=None, pattern="^(gemini|claude|anthropic|deepseek)$")
+
+
+@router.post("/conversation")
+def conversation(payload: ConversationRequest):
+    """Chat de voz: practicar hablando, no vocabulario suelto. No se guarda como
+    intento por la misma razón que say-it — es práctica libre, no evaluación."""
+    if not payload.messages:
+        raise HTTPException(status_code=400, detail="Falta el mensaje del estudiante")
+    if payload.messages[-1].role != "user":
+        raise HTTPException(status_code=400, detail="El último turno debe ser del estudiante")
+
+    recent = payload.messages[-8:]
+    transcript = "\n".join(
+        f"{'Tutor' if m.role == 'assistant' else 'Estudiante'}: {m.text}" for m in recent
+    )
+
+    user_prompt = (
+        f"Conversación hasta ahora:\n{transcript}\n\n"
+        "Responde como el tutor, siguiendo la conversación de forma natural. "
+        "Responde con este JSON:\n"
+        '{"reply": "tu respuesta en inglés, 1-2 frases, terminando en pregunta", '
+        '"correction": "explicación breve en español del error del estudiante, '
+        'o cadena vacía si no hubo"}'
+    )
+
+    try:
+        raw = call_llm(
+            CONVERSATION_SYSTEM_PROMPT,
+            user_prompt,
+            provider=payload.provider,
+            max_tokens=CONVERSATION_MAX_TOKENS,
+        )
+        parsed = extract_json(raw)
+    except ProviderError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return {
+        "reply": str(parsed.get("reply", "")).strip()
+        or "Sorry, could you say that again?",
+        "correction": str(parsed.get("correction", "")).strip(),
+    }
+
+
 # ---------------------------------------------------------------- diccionario personal
 
 

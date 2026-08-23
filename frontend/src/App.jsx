@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
+  converse,
   evaluate,
   freePractice,
   getLessons,
@@ -18,6 +19,7 @@ import Dictionary from './components/Dictionary.jsx'
 import GamePicker from './components/GamePicker.jsx'
 import Stats from './components/Stats.jsx'
 import RutaScreen from './components/RutaScreen.jsx'
+import VoiceChat from './components/VoiceChat.jsx'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -103,6 +105,7 @@ export default function App() {
   const [showGame, setShowGame] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [showRuta, setShowRuta] = useState(false)
+  const [showVoice, setShowVoice] = useState(false)
 
   function changeTrack(next) {
     setTrack(next)
@@ -225,6 +228,11 @@ export default function App() {
     startWeek(week, jumpTrack)
   }
 
+  // Chat de voz: no depende de una sesión de bloque, así que vive aparte.
+  function handleConverse(chatMessages) {
+    return converse(chatMessages, provider)
+  }
+
   function exitSession() {
     setSession(null)
     setStep(0)
@@ -312,6 +320,14 @@ export default function App() {
     )
   }
 
+  if (showVoice) {
+    return (
+      <main className="shell">
+        <VoiceChat onBack={() => setShowVoice(false)} onConverse={handleConverse} />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
       {!session && (
@@ -333,6 +349,7 @@ export default function App() {
           onGame={() => setShowGame(true)}
           onStats={() => setShowStats(true)}
           onRuta={() => setShowRuta(true)}
+          onVoice={() => setShowVoice(true)}
         />
       )}
 

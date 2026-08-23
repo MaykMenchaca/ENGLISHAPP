@@ -65,7 +65,7 @@ def _post_json(url: str, payload: dict, headers: dict) -> dict:
     raise last_error
 
 
-def call_gemini(system: str, user: str) -> str:
+def call_gemini(system: str, user: str, max_tokens: int = MAX_TOKENS) -> str:
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
         raise ProviderError("Falta GEMINI_API_KEY en las variables de entorno.")
@@ -75,7 +75,7 @@ def call_gemini(system: str, user: str) -> str:
         "contents": [{"role": "user", "parts": [{"text": user}]}],
         "generationConfig": {
             "temperature": 0.2,
-            "maxOutputTokens": MAX_TOKENS,
+            "maxOutputTokens": max_tokens,
             # Sin esto los modelos nuevos gastan el presupuesto razonando y el JSON
             # llega cortado a media frase. Para corregir texto no hace falta.
             "thinkingConfig": {"thinkingBudget": 0},
@@ -109,14 +109,14 @@ def call_gemini(system: str, user: str) -> str:
     raise last_error
 
 
-def call_claude(system: str, user: str) -> str:
+def call_claude(system: str, user: str, max_tokens: int = MAX_TOKENS) -> str:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         raise ProviderError("Falta ANTHROPIC_API_KEY en las variables de entorno.")
 
     payload = {
         "model": CLAUDE_MODEL,
-        "max_tokens": MAX_TOKENS,
+        "max_tokens": max_tokens,
         "temperature": 0.2,
         "system": system,
         "messages": [{"role": "user", "content": user}],
@@ -137,7 +137,7 @@ def call_claude(system: str, user: str) -> str:
         raise ProviderError(f"Respuesta inesperada de Claude: {json.dumps(body)[:300]}") from exc
 
 
-def call_deepseek(system: str, user: str) -> str:
+def call_deepseek(system: str, user: str, max_tokens: int = MAX_TOKENS) -> str:
     key = os.environ.get("DEEPSEEK_API_KEY")
     if not key:
         raise ProviderError("Falta DEEPSEEK_API_KEY en las variables de entorno.")
@@ -145,7 +145,7 @@ def call_deepseek(system: str, user: str) -> str:
     payload = {
         "model": DEEPSEEK_MODEL,
         "temperature": 0.2,
-        "max_tokens": MAX_TOKENS,
+        "max_tokens": max_tokens,
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
@@ -166,16 +166,21 @@ def call_deepseek(system: str, user: str) -> str:
         raise ProviderError(f"Respuesta inesperada de DeepSeek: {json.dumps(body)[:300]}") from exc
 
 
-def call_llm(system: str, user: str, provider: str | None = None) -> str:
+def call_llm(
+    system: str, user: str, provider: str | None = None, max_tokens: int = MAX_TOKENS
+) -> str:
     """provider, si se da, gana sobre PROVIDER (env). Así el frontend puede
-    elegir el motor por petición sin tener que redesplegar nada."""
+    elegir el motor por petición sin tener que redesplegar nada.
+
+    max_tokens por defecto es MAX_TOKENS (medido para corregir texto suelto);
+    la conversación por voz pide un poco más de aire, ver /api/conversation."""
     provider = (provider or DEFAULT_PROVIDER).strip().lower()
     if provider == "gemini":
-        return call_gemini(system, user)
+        return call_gemini(system, user, max_tokens=max_tokens)
     if provider in ("claude", "anthropic"):
-        return call_claude(system, user)
+        return call_claude(system, user, max_tokens=max_tokens)
     if provider == "deepseek":
-        return call_deepseek(system, user)
+        return call_deepseek(system, user, max_tokens=max_tokens)
     raise ProviderError(f"Proveedor desconocido: {provider!r}. Usa gemini, claude o deepseek.")
 
 

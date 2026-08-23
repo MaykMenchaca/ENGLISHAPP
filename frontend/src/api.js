@@ -89,3 +89,10 @@ export const sayIt = (spanish, attempt = '', provider = null) =>
     method: 'POST',
     body: JSON.stringify({ spanish, attempt, provider }),
   })
+
+// messages: [{role: 'user'|'assistant', text}], el último debe ser del estudiante.
+export const converse = (messages, provider = null) =>
+  request('/api/conversation', {
+    method: 'POST',
+    body: JSON.stringify({ messages, provider }),
+  })
