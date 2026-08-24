@@ -59,6 +59,7 @@ export default function RutaScreen({ onBack, onStart }) {
           {LEARNING_PATH.map((step, i) => {
             const sectionStats = byTrack[step.track]?.sections[step.week]
             const trackLabel = byTrack[step.track]?.label || step.track
+            const sectionName = sectionStats?.section_name || `Bloque ${step.week}`
             const mastered = isMastered(sectionStats)
             const isNext = i === nextIndex
             return (
@@ -71,14 +72,14 @@ export default function RutaScreen({ onBack, onStart }) {
                 </span>
                 <div className="path-body">
                   <p className="path-title">
-                    {trackLabel} · {sectionStats?.section_name || `Bloque ${step.week}`}
+                    {trackLabel} · {sectionName}
                   </p>
                   {step.reason && <p className="path-reason">{step.reason}</p>}
                 </div>
                 <button
                   type="button"
                   className={isNext ? 'btn primary' : 'btn ghost'}
-                  onClick={() => onStart(step.track, step.week)}
+                  onClick={() => onStart(step.track, step.week, sectionName)}
                 >
                   {isNext ? 'Empieza aquí' : mastered ? 'Repasar' : 'Practicar'}
                 </button>

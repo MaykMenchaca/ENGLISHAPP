@@ -66,7 +66,7 @@ export default function VoiceChat({ onBack, onConverse }) {
 
   function handlePickTopic(t) {
     setTopic(t)
-    setMessages([{ role: 'assistant', text: t.opening }])
+    setMessages([{ role: 'assistant', text: t.opening, lang: 'en' }])
     speak(t.opening)
   }
 
@@ -90,7 +90,12 @@ export default function VoiceChat({ onBack, onConverse }) {
         }
         return [
           ...updated,
-          { role: 'assistant', text: res.reply, exampleEn: res.example_en || null },
+          {
+            role: 'assistant',
+            text: res.reply,
+            exampleEn: res.example_en || null,
+            lang: res.reply_lang || 'en',
+          },
         ]
       })
       speak(res.reply, { lang: res.reply_lang })
@@ -210,6 +215,15 @@ export default function VoiceChat({ onBack, onConverse }) {
                   <SpeakButton text={m.exampleEn} />
                 </span>
               </p>
+            )}
+            {m.role === 'assistant' && (
+              <button
+                type="button"
+                className="voice-slow-btn"
+                onClick={() => speak(m.text, { rate: 0.55, lang: m.lang || 'en' })}
+              >
+                Repetir más lento
+              </button>
             )}
           </div>
         ))}

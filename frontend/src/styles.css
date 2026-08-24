@@ -1,4 +1,10 @@
 :root {
+  /* Oscuro por defecto — nada de lo que ya existía cambia de aspecto. El modo
+     claro (más abajo) redefine SOLO estos mismos tokens de color; el resto
+     del CSS entero ya está escrito en var(--token), así que no hace falta
+     tocar ninguna otra regla para que el tema cambie. */
+  color-scheme: dark light;
+
   --bg: oklch(0.155 0.014 250);
   --surface: oklch(0.185 0.016 250);
   --surface-2: oklch(0.225 0.017 250);
@@ -23,6 +29,12 @@
   --bad-bg: oklch(0.24 0.045 85);
   --bad-ink: oklch(0.15 0.025 85);
 
+  /* Divisores/paneles translúcidos dentro de burbujas o fondos ya coloreados
+     (feedback, chat de voz): sobre oscuro aclaran, sobre claro oscurecen un
+     poco — por eso son tokens propios y no un rgba(255,255,255,…) fijo. */
+  --divider: rgba(255, 255, 255, 0.25);
+  --panel-overlay: rgba(0, 0, 0, 0.28);
+
   --font-body: 'Public Sans', -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
@@ -31,8 +43,51 @@
   --pill: 999px;
 }
 
+/* ---------- modo claro ---------- */
+/* Interruptor manual (theme.js, localStorage tutor-theme) — no sigue al
+   sistema. Solo colores: contraste revisado a mano (texto oscuro sobre
+   fondos claros; --accent/--good/--bad se oscurecen para poder leerse
+   como TEXTO sobre superficie clara y, a la vez, seguir sirviendo de fondo
+   sólido con su -ink correspondiente casi blanco encima). */
+:root[data-theme='light'] {
+  --bg: oklch(0.98 0.006 250);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.955 0.008 250);
+  --ink: oklch(0.22 0.02 250);
+  --soft: oklch(0.4 0.017 250);
+  --faint: oklch(0.55 0.014 250);
+  --line: oklch(0.85 0.012 250);
+  --line-soft: oklch(0.9 0.01 250);
+
+  --accent: oklch(0.52 0.16 232);
+  --accent-deep: oklch(0.38 0.15 232);
+  --accent-ink: oklch(0.99 0.006 232);
+
+  --good: oklch(0.46 0.13 155);
+  --good-deep: oklch(0.34 0.12 155);
+  --good-bg: oklch(0.93 0.045 155);
+  --good-ink: oklch(0.99 0.01 155);
+
+  --bad: oklch(0.48 0.12 85);
+  --bad-deep: oklch(0.36 0.11 85);
+  --bad-bg: oklch(0.94 0.05 85);
+  --bad-ink: oklch(0.99 0.01 85);
+
+  --divider: rgba(0, 0, 0, 0.14);
+  --panel-overlay: rgba(255, 255, 255, 0.6);
+}
+
 * {
   box-sizing: border-box;
+}
+
+/* Sin esto, Chrome pinta su propio fondo nativo en <button disabled> e
+   ignora el background-color del CSS — justo el estado en el que un
+   ejercicio queda tras responder (opción correcta/incorrecta). El color de
+   texto y el borde sí respetaban el tema; el relleno no. */
+button {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 html,
@@ -84,51 +139,6 @@ body {
   color: var(--soft);
   font-size: 15.5px;
   line-height: 1.6;
-}
-
-/* ---------- pestañas Ingeniería / Básico ---------- */
-.tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 2px;
-  flex-wrap: wrap;
-}
-.tabs button {
-  padding: 9px 15px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--faint);
-  font: inherit;
-  font-size: 14.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color 140ms ease, border-color 140ms ease;
-}
-.tabs button:hover {
-  color: var(--soft);
-}
-.tabs button.active {
-  color: var(--accent-deep);
-  border-bottom-color: var(--accent);
-}
-.tabs button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.tabs .tab-side {
-  margin-left: auto;
-  font-size: 13.5px;
-  font-weight: 500;
-}
-.tabs .tab-logout {
-  font-size: 13.5px;
-  font-weight: 500;
-}
-.tabs .tab-logout:hover {
-  color: var(--bad);
 }
 
 /* ---------- selector de bloques: track (navegación) vs herramientas ---------- */
@@ -363,41 +373,11 @@ body {
   opacity: 0.55;
   cursor: not-allowed;
 }
-/* Orden visual: número de bloque, recuento de palabras, título, barra, stats.
-   El DOM (fijo en el JSX) trae: número, título, recuento, barra, stats — cinco
-   <span> hermanos, así que reordenar por :first-of-type no sirve (eso mira la
-   etiqueta, no la clase, y las cinco son <span>). Se ancla por posición real
-   con :nth-child en su lugar. */
-.lesson-card > :nth-child(1) {
-  order: 1;
-}
-.lesson-card > :nth-child(3) {
-  order: 2;
-  margin-bottom: 2px;
-}
-.lesson-card > :nth-child(2) {
-  order: 3;
-}
-.lesson-card > :nth-child(4) {
-  order: 4;
-}
-.lesson-card > :nth-child(5) {
-  order: 5;
-}
 
-.lesson-num {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
 .lesson-title {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  margin: 2px 0 6px;
 }
 .lesson-meta {
   font-family: var(--font-mono);
@@ -683,7 +663,7 @@ form {
 .feedback-expected {
   margin: 0;
   padding: 11px 13px;
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--panel-overlay);
   border-radius: var(--radius-sm);
   font-size: 15px;
   line-height: 1.55;
@@ -1168,11 +1148,6 @@ code {
 .next-up .btn {
   flex: 0 0 auto;
 }
-.lesson-priority {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--faint);
-}
 
 /* ---------- chat de voz ---------- */
 .voice-thread {
@@ -1211,7 +1186,7 @@ code {
 .voice-correction {
   margin: 8px 0 0;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: 1px solid var(--divider);
   font-size: 13px;
   opacity: 0.9;
 }
@@ -1313,8 +1288,28 @@ code {
 .voice-example {
   margin: 8px 0 0;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: 1px solid var(--divider);
   font-size: 14px;
+}
+
+/* Botón de repetir la respuesta del tutor más despacio (Fase 10) */
+.voice-slow-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 11px;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--pill);
+  color: var(--faint);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+.voice-slow-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-deep);
 }
 
 @keyframes voice-pulse {
@@ -1337,4 +1332,92 @@ code {
   .voice-mic.listening {
     animation: none;
   }
+}
+
+/* ---------- bloque → actividad (BlockScreen, SpeakScreen) ---------- */
+/* Mismo lenguaje de tarjeta que .lesson-card, pero de una sola columna y
+   con una descripción de una línea — es un menú de 2-3 opciones, no una
+   rejilla de bloques. */
+.block-activities {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.block-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 17px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.block-activity:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+.block-activity:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.block-activity:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.block-activity-title {
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.block-activity-desc {
+  font-size: 13.5px;
+  color: var(--faint);
+  line-height: 1.45;
+}
+
+/* ---------- pronunciación: palabras entendidas / no entendidas ---------- */
+.drill-audio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.chip-missed {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+  color: var(--bad-deep);
+}
+
+/* ---------- frases útiles (Phrasebook) ---------- */
+.phrase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.phrase-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.phrase-en {
+  margin: 0;
+  font-weight: 600;
+  font-size: 15.5px;
+}
+.phrase-es {
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  color: var(--soft);
 }

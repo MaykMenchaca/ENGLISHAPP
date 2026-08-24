@@ -13,15 +13,18 @@ import {
 } from './api.js'
 import Login from './components/Login.jsx'
 import LessonSelector from './components/LessonSelector.jsx'
+import BlockScreen from './components/BlockScreen.jsx'
 import ExerciseCard from './components/ExerciseCard.jsx'
 import SessionReview from './components/SessionReview.jsx'
-import WritePicker from './components/WritePicker.jsx'
+import FreePractice from './components/FreePractice.jsx'
+import MatchGame from './components/MatchGame.jsx'
 import Dictionary from './components/Dictionary.jsx'
-import GamePicker from './components/GamePicker.jsx'
+import Settings from './components/Settings.jsx'
 import Stats from './components/Stats.jsx'
 import RutaScreen from './components/RutaScreen.jsx'
-import VoiceChat from './components/VoiceChat.jsx'
+import SpeakScreen from './components/SpeakScreen.jsx'
 import { setSoundsEnabled, soundsEnabled } from './sounds.js'
+import { getTheme, setTheme } from './theme.js'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
@@ -73,7 +76,15 @@ export default function App() {
   // null = todavía no sabemos si hay sesión (evita parpadear el login al cargar)
   const [authenticated, setAuthenticated] = useState(null)
 
-  // Estado de la sesión activa
+  // Bloque elegido en la rejilla ({track, week, sectionName}) y qué actividad
+  // hace con él (null = todavía viendo BlockScreen, sin haber elegido nada).
+  // Antes "Jugar" y "Escribir frases" volvían a preguntar track+bloque en sus
+  // propias pantallas; ahora el bloque se elige una sola vez aquí.
+  const [selectedBlock, setSelectedBlock] = useState(null)
+  const [activity, setActivity] = useState(null) // null | 'practice' | 'game' | 'write'
+  const [writeWords, setWriteWords] = useState(null) // palabras para la actividad "write"
+
+  // Estado de la sesión de práctica (actividad "practice")
   const [session, setSession] = useState(null) // { week, words, pool }
   const [step, setStep] = useState(0) // índice sobre words * MODES
   const [finished, setFinished] = useState(false)
@@ -107,17 +118,25 @@ export default function App() {
     setSoundsEnabled(next)
   }
 
+  // Igual que sounds: el valor real vive en theme.js (localStorage + atributo
+  // en <html>), aquí solo se espeja para repintar el interruptor de Ajustes.
+  const [theme, setThemeState] = useState(() => getTheme())
+
+  function changeTheme(next) {
+    setThemeState(next)
+    setTheme(next)
+  }
+
   // 'structure' | 'engineering' | 'basic' | 'academic'. Empieza en 'structure'
   // para quien nunca ha elegido nada — es el primer paso de la ruta recomendada.
   const [track, setTrack] = useState(
     () => localStorage.getItem('tutor-track') || 'structure'
   )
   const [showDictionary, setShowDictionary] = useState(false)
-  const [showGame, setShowGame] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [showRuta, setShowRuta] = useState(false)
   const [showVoice, setShowVoice] = useState(false)
-  const [showWrite, setShowWrite] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
 
   function changeTrack(next) {
     setTrack(next)
@@ -147,6 +166,8 @@ export default function App() {
       // aunque falle en el servidor, localmente volvemos al login
     }
     setSession(null)
+    setSelectedBlock(null)
+    setActivity(null)
     setShowDictionary(false)
     setAuthenticated(false)
   }
@@ -184,7 +205,7 @@ export default function App() {
     }
   }, [track, authenticated])
 
-  // trackOverride existe para saltos desde la Ruta: el estado `track` tarda un
+  // trackOverride existe para saltos entre tracks: el estado `track` tarda un
   // render en actualizarse, así que no sirve leerlo aquí mismo tras cambiarlo.
   async function startWeek(week, trackOverride) {
     const activeTrack = trackOverride || track
@@ -232,27 +253,77 @@ export default function App() {
     return sayIt(spanish, attempt, provider)
   }
 
-  // Saltar a un bloque de OTRO track (desde la Ruta o la franja "siguiente
-  // recomendado"): cambia la pestaña activa y arranca la sesión ahí mismo.
-  function handleJump(jumpTrack, week) {
-    changeTrack(jumpTrack)
-    setShowRuta(false)
-    startWeek(week, jumpTrack)
-  }
-
   // Chat de voz: no depende de una sesión de bloque, así que vive aparte.
   function handleConverse(chatMessages) {
     return converse(chatMessages, provider)
   }
 
-  function exitSession() {
+  // Entrar a un bloque desde cualquiera de los tres caminos (rejilla,
+  // "siguiente recomendado", Ruta): cambia la pestaña activa si hace falta
+  // y muestra BlockScreen, sin arrancar nada todavía.
+  function openBlock(blockTrack, week, sectionName) {
+    if (blockTrack !== track) changeTrack(blockTrack)
+    setSelectedBlock({ track: blockTrack, week, sectionName })
+    setActivity(null)
     setSession(null)
     setStep(0)
     setFinished(false)
-    // Refresca las barras del selector con lo que acaba de practicar
+    setWriteWords(null)
+  }
+
+  function handleSelectBlock(week, sectionName) {
+    openBlock(track, week, sectionName)
+  }
+
+  function handleJump(jumpTrack, week, sectionName) {
+    setShowRuta(false)
+    openBlock(jumpTrack, week, sectionName)
+  }
+
+  function handlePractice() {
+    setActivity('practice')
+    startWeek(selectedBlock.week, selectedBlock.track)
+  }
+
+  function handleGame() {
+    setActivity('game')
+  }
+
+  async function handleWrite() {
+    setLoading(true)
+    setFatalError(null)
+    try {
+      const prog = await getProgress(selectedBlock.week, selectedBlock.track)
+      setWriteWords(shuffle(prog.items).slice(0, WORDS_PER_SESSION))
+      setActivity('write')
+    } catch (err) {
+      setFatalError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Vuelve a BlockScreen (no a la rejilla entera): dentro de un bloque puede
+  // querer probar otra actividad sin tener que volver a buscarlo.
+  function backToBlock() {
+    setActivity(null)
+    setSession(null)
+    setStep(0)
+    setFinished(false)
+    setWriteWords(null)
+    // Refresca las barras de la rejilla con lo que acaba de practicar
     getProgress(null, track)
       .then((prog) => setProgress(aggregateByWeek(prog.items)))
       .catch(() => {})
+  }
+
+  function backToSelector() {
+    setSelectedBlock(null)
+    setActivity(null)
+    setSession(null)
+    setStep(0)
+    setFinished(false)
+    setWriteWords(null)
   }
 
   // Estos dos van ANTES que cualquier otra pantalla: sin sesión no se muestra nada.
@@ -308,14 +379,6 @@ export default function App() {
     )
   }
 
-  if (showGame) {
-    return (
-      <main className="shell">
-        <GamePicker onBack={() => setShowGame(false)} />
-      </main>
-    )
-  }
-
   if (showStats) {
     return (
       <main className="shell">
@@ -335,32 +398,15 @@ export default function App() {
   if (showVoice) {
     return (
       <main className="shell">
-        <VoiceChat onBack={() => setShowVoice(false)} onConverse={handleConverse} />
+        <SpeakScreen onBack={() => setShowVoice(false)} onConverse={handleConverse} />
       </main>
     )
   }
 
-  if (showWrite) {
+  if (showSettings) {
     return (
       <main className="shell">
-        <WritePicker
-          onBack={() => setShowWrite(false)}
-          onSubmit={(wordIds, text) => freePractice(wordIds, text, provider)}
-          onSayIt={handleSayIt}
-        />
-      </main>
-    )
-  }
-
-  return (
-    <main className="shell">
-      {!session && (
-        <LessonSelector
-          weeks={weeks}
-          progress={progress}
-          onStart={startWeek}
-          onJump={handleJump}
-          loading={loading}
+        <Settings
           format={format}
           onFormat={changeFormat}
           sounds={sounds}
@@ -368,19 +414,70 @@ export default function App() {
           providerOptions={providerOptions}
           provider={provider}
           onProvider={changeProvider}
+          theme={theme}
+          onTheme={changeTheme}
+          onBack={() => setShowSettings(false)}
+        />
+      </main>
+    )
+  }
+
+  return (
+    <main className="shell">
+      {!selectedBlock && (
+        <LessonSelector
+          weeks={weeks}
+          progress={progress}
+          onStart={handleSelectBlock}
+          onJump={handleJump}
+          loading={loading}
           track={track}
           onTrack={changeTrack}
           onDictionary={() => setShowDictionary(true)}
           onLogout={handleLogout}
-          onGame={() => setShowGame(true)}
           onStats={() => setShowStats(true)}
           onRuta={() => setShowRuta(true)}
           onVoice={() => setShowVoice(true)}
-          onWrite={() => setShowWrite(true)}
+          onSettings={() => setShowSettings(true)}
         />
       )}
 
-      {session && current && (
+      {selectedBlock && !activity && (
+        <BlockScreen
+          track={selectedBlock.track}
+          week={selectedBlock.week}
+          sectionName={selectedBlock.sectionName}
+          onPractice={handlePractice}
+          onGame={handleGame}
+          onWrite={handleWrite}
+          onBack={backToSelector}
+        />
+      )}
+
+      {selectedBlock && activity === 'game' && (
+        <MatchGame
+          track={selectedBlock.track}
+          week={selectedBlock.week}
+          sectionName={selectedBlock.sectionName}
+          onBack={backToBlock}
+        />
+      )}
+
+      {selectedBlock && activity === 'write' && writeWords && (
+        <>
+          <FreePractice
+            words={writeWords}
+            onSubmit={(text) => freePractice(writeWords.map((w) => w.id), text, provider)}
+            onFinish={backToBlock}
+            onSayIt={handleSayIt}
+          />
+          <button className="btn ghost" onClick={backToBlock}>
+            Volver al bloque
+          </button>
+        </>
+      )}
+
+      {selectedBlock && activity === 'practice' && session && current && (
         <>
           <ExerciseCard
             key={`${current.word.id}-${current.mode}`}
@@ -396,24 +493,24 @@ export default function App() {
             onNext={() => setStep((s) => s + 1)}
             onSayIt={handleSayIt}
           />
-          <button className="btn ghost" onClick={exitSession}>
+          <button className="btn ghost" onClick={backToBlock}>
             Salir de la sesión
           </button>
         </>
       )}
 
-      {session && !current && !finished && (
+      {selectedBlock && activity === 'practice' && session && !current && !finished && (
         <SessionReview
           words={session.words}
           onEvaluate={(wordId, answer) =>
             evaluate(wordId, 'meaning', answer, 'recall', provider)
           }
           onFinish={() => setFinished(true)}
-          onExit={exitSession}
+          onExit={backToBlock}
         />
       )}
 
-      {session && finished && (
+      {selectedBlock && activity === 'practice' && session && finished && (
         <div className="stack">
           <div className="card done-card">
             <h2>Sesión terminada</h2>
@@ -421,8 +518,8 @@ export default function App() {
               Practicaste {session.words.length} palabras del bloque {session.week}.
               Tu progreso quedó guardado.
             </p>
-            <button className="btn primary" onClick={exitSession}>
-              Volver a los bloques
+            <button className="btn primary" onClick={backToBlock}>
+              Volver al bloque
             </button>
           </div>
         </div>

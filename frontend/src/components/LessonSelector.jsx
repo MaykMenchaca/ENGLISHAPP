@@ -2,12 +2,6 @@ import { useEffect, useState } from 'react'
 import { getStats } from '../api.js'
 import { LEARNING_PATH, isMastered } from '../learningPath.js'
 
-const PROVIDER_LABELS = {
-  gemini: 'Gemini',
-  claude: 'Claude',
-  deepseek: 'DeepSeek',
-}
-
 // Posición de cada (track, week) dentro de la ruta global, 1-indexada. Es
 // estático — no depende de progreso — así que se calcula una sola vez fuera
 // del componente en vez de en cada render.
@@ -15,28 +9,27 @@ const PATH_INDEX = new Map(
   LEARNING_PATH.map((step, i) => [`${step.track}-${step.week}`, i + 1])
 )
 
+/**
+ * Pantalla principal: elegir bloque. Los ajustes (formato, sonidos, motor de
+ * IA, tema) viven ahora en su propia pantalla — antes ocupaban media
+ * pantalla aquí, aunque casi nunca se vuelven a tocar. Jugar y Escribir
+ * frases tampoco preguntan track+bloque aquí: eso pasa dentro de cada
+ * bloque, en BlockScreen, para no repetir la misma pregunta tres veces.
+ */
 export default function LessonSelector({
   weeks,
   progress,
   onStart,
   onJump,
   loading,
-  format,
-  onFormat,
-  sounds,
-  onSounds,
-  providerOptions,
-  provider,
-  onProvider,
   track,
   onTrack,
   onDictionary,
   onLogout,
-  onGame,
   onVoice,
-  onWrite,
   onStats,
   onRuta,
+  onSettings,
 }) {
   // Solo para la franja "siguiente recomendado" — el orden de las tarjetas
   // dentro de cada track ya no necesita esto, es puramente estático.
@@ -59,6 +52,7 @@ export default function LessonSelector({
   }
   const nextStep = LEARNING_PATH.find((step) => !isMastered(byTrack[step.track]?.[step.week]))
   const nextStepStats = nextStep && byTrack[nextStep.track]?.[nextStep.week]
+  const nextStepName = nextStepStats?.section_name || (nextStep && `Bloque ${nextStep.week}`)
 
   // Mismas tarjetas, reordenadas por prioridad de la ruta — los bloques que
   // no están en la ruta (no debería pasar, la cubre entera) van al final.
@@ -72,10 +66,6 @@ export default function LessonSelector({
       <header className="masthead">
         <p className="eyebrow">Tutor de inglés · TOEFL + Ingeniería Industrial</p>
         <h1>Elige tu bloque</h1>
-        <p className="lede">
-          Cada sesión son 5 palabras. De cada una te pregunto el significado y luego
-          te pido completarla dentro de una oración. Te corrijo en español.
-        </p>
       </header>
 
       {/* Solo aparece si aún queda algo por dominar en la ruta — cuando la
@@ -84,14 +74,12 @@ export default function LessonSelector({
         <div className="next-up">
           <div className="next-up-text">
             <span className="next-up-label">Siguiente recomendado</span>
-            <p className="next-up-title">
-              {nextStepStats?.section_name || `Bloque ${nextStep.week}`}
-            </p>
+            <p className="next-up-title">{nextStepName}</p>
           </div>
           <button
             type="button"
             className="btn primary"
-            onClick={() => onJump(nextStep.track, nextStep.week)}
+            onClick={() => onJump(nextStep.track, nextStep.week, nextStepName)}
           >
             Empezar
           </button>
@@ -136,121 +124,35 @@ export default function LessonSelector({
         <button type="button" className="action-btn" onClick={onStats}>
           Progreso
         </button>
-        <button type="button" className="action-btn" onClick={onGame}>
-          Jugar
-        </button>
         <button type="button" className="action-btn" onClick={onVoice}>
           Hablar
         </button>
-        <button type="button" className="action-btn" onClick={onWrite}>
-          Escribir frases
-        </button>
         <button type="button" className="action-btn" onClick={onDictionary}>
           Mi diccionario
+        </button>
+        <button type="button" className="action-btn" onClick={onSettings}>
+          Ajustes
         </button>
         <button type="button" className="action-btn logout" onClick={onLogout}>
           Salir
         </button>
       </div>
 
-      <div className="switch-row">
-        <span className="switch-label">Cómo quieres responder</span>
-        <div className="switch" role="group" aria-label="Formato de respuesta">
-          <button
-            type="button"
-            className={format === 'choice' ? 'active' : ''}
-            onClick={() => onFormat('choice')}
-          >
-            Opciones
-          </button>
-          <button
-            type="button"
-            className={format === 'text' ? 'active' : ''}
-            onClick={() => onFormat('text')}
-          >
-            Escribir
-          </button>
-        </div>
-        <p className="switch-hint">
-          {format === 'choice'
-            ? 'Eliges entre 4 opciones. Respuesta inmediata, ideal para empezar.'
-            : 'Escribes tu respuesta y la IA te corrige en español. Cuesta más, enseña más.'}
-        </p>
-      </div>
-
-      <div className="switch-row">
-        <span className="switch-label">Sonidos</span>
-        <div className="switch" role="group" aria-label="Sonidos de acierto y error">
-          <button
-            type="button"
-            className={sounds ? 'active' : ''}
-            onClick={() => onSounds(true)}
-          >
-            Activados
-          </button>
-          <button
-            type="button"
-            className={!sounds ? 'active' : ''}
-            onClick={() => onSounds(false)}
-          >
-            Silencio
-          </button>
-        </div>
-        <p className="switch-hint">
-          {sounds
-            ? 'Suena un tono al acertar y otro distinto al fallar, también en el juego.'
-            : 'Sin tonos de acierto ni de error. La pronunciación en voz alta sigue funcionando.'}
-        </p>
-      </div>
-
-      {/* Solo aparece si hay más de un proveedor con clave configurada en el
-          servidor — con uno solo, elegir no tiene sentido. */}
-      {providerOptions.length > 1 && (
-        <div className="switch-row">
-          <span className="switch-label">Motor de IA para escribir</span>
-          <div className="switch" role="group" aria-label="Proveedor de IA">
-            {providerOptions.map((p) => (
-              <button
-                key={p}
-                type="button"
-                className={provider === p ? 'active' : ''}
-                onClick={() => onProvider(p)}
-              >
-                {PROVIDER_LABELS[p] || p}
-              </button>
-            ))}
-          </div>
-          <p className="switch-hint">
-            Solo se usa en modo «Escribir» y en la práctica libre. Si uno falla o se
-            queda sin cuota, cambia aquí sin perder tu sesión.
-          </p>
-        </div>
-      )}
-
       <div className="lesson-grid">
         {orderedWeeks.map((w) => {
           const stats = progress[w.week] || { attempted: 0, accuracy: null }
           const pct = w.count ? Math.round((stats.attempted / w.count) * 100) : 0
-          const priority = PATH_INDEX.get(`${track}-${w.week}`)
           return (
             <button
               key={w.week}
               className="lesson-card"
-              onClick={() => onStart(w.week)}
+              onClick={() => onStart(w.week, w.section_name)}
               disabled={loading}
             >
-              <span className="lesson-num">
-                Bloque {w.week}
-                {priority && <span className="lesson-priority"> · {priority}º en tu ruta</span>}
-              </span>
               <span className="lesson-title">{w.section_name}</span>
               <span className="lesson-meta">{w.count} palabras</span>
               <span className="bar" aria-hidden="true">
                 <span className="bar-fill" style={{ width: `${pct}%` }} />
-              </span>
-              <span className="lesson-meta">
-                {stats.attempted} vistas
-                {stats.accuracy !== null && ` · ${Math.round(stats.accuracy * 100)}% acierto`}
               </span>
             </button>
           )
