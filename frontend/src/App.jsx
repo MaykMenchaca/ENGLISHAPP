@@ -14,7 +14,8 @@ import {
 import Login from './components/Login.jsx'
 import LessonSelector from './components/LessonSelector.jsx'
 import ExerciseCard from './components/ExerciseCard.jsx'
-import FreePractice from './components/FreePractice.jsx'
+import SessionReview from './components/SessionReview.jsx'
+import WritePicker from './components/WritePicker.jsx'
 import Dictionary from './components/Dictionary.jsx'
 import GamePicker from './components/GamePicker.jsx'
 import Stats from './components/Stats.jsx'
@@ -116,6 +117,7 @@ export default function App() {
   const [showStats, setShowStats] = useState(false)
   const [showRuta, setShowRuta] = useState(false)
   const [showVoice, setShowVoice] = useState(false)
+  const [showWrite, setShowWrite] = useState(false)
 
   function changeTrack(next) {
     setTrack(next)
@@ -338,6 +340,18 @@ export default function App() {
     )
   }
 
+  if (showWrite) {
+    return (
+      <main className="shell">
+        <WritePicker
+          onBack={() => setShowWrite(false)}
+          onSubmit={(wordIds, text) => freePractice(wordIds, text, provider)}
+          onSayIt={handleSayIt}
+        />
+      </main>
+    )
+  }
+
   return (
     <main className="shell">
       {!session && (
@@ -362,6 +376,7 @@ export default function App() {
           onStats={() => setShowStats(true)}
           onRuta={() => setShowRuta(true)}
           onVoice={() => setShowVoice(true)}
+          onWrite={() => setShowWrite(true)}
         />
       )}
 
@@ -388,17 +403,13 @@ export default function App() {
       )}
 
       {session && !current && !finished && (
-        <FreePractice
+        <SessionReview
           words={session.words}
-          onSubmit={(text) =>
-            freePractice(
-              session.words.map((w) => w.id),
-              text,
-              provider
-            )
+          onEvaluate={(wordId, answer) =>
+            evaluate(wordId, 'meaning', answer, 'recall', provider)
           }
           onFinish={() => setFinished(true)}
-          onSayIt={handleSayIt}
+          onExit={exitSession}
         />
       )}
 

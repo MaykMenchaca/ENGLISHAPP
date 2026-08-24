@@ -118,9 +118,11 @@ class EvaluateRequest(BaseModel):
     word_id: int
     mode: str = Field(pattern="^(meaning|completion)$")
     user_answer: str
-    # "choice" se resuelve aquí mismo comparando contra la respuesta conocida:
-    # instantáneo, sin gastar cuota y sin depender de que el LLM esté arriba.
-    format: str = Field(default="text", pattern="^(text|choice)$")
+    # "choice" y "recall" se resuelven aquí mismo comparando contra la respuesta
+    # conocida: instantáneo, sin gastar cuota y sin depender de que el LLM esté
+    # arriba. "recall" es el repaso final, donde el estudiante ESCRIBE el
+    # significado, así que se califica con manga ancha (ver _matches_meaning).
+    format: str = Field(default="text", pattern="^(text|choice|recall)$")
     # Si no se manda, call_llm() cae en PROVIDER (env). Nunca es la clave en sí,
     # solo el nombre del proveedor — la clave nunca sale del servidor.
     # Validado aquí (422 si no es uno de estos) para no gastar un round-trip
@@ -133,6 +135,28 @@ def _normalize(value: str) -> str:
     lowered = unicodedata.normalize("NFD", value.strip().lower())
     stripped = "".join(c for c in lowered if unicodedata.category(c) != "Mn")
     return re.sub(r"[^a-z0-9\s]", "", stripped).strip()
+
+
+def _meaning_variants(spanish: str) -> set:
+    """Todas las formas que cuentan como acertar un significado.
+
+    Los significados guardados juntan varias formas en una cadena: "A mí, me.",
+    "Él, ella (para cosas); eso.", "Hola (informal).". Exigir la cadena completa
+    sería injusto cuando el estudiante ESCRIBE la respuesta — sabe la palabra
+    aunque solo ponga una de las formas. Se parte por comas, punto y coma y
+    barras, y de cada trozo se guarda también la versión sin paréntesis.
+    """
+    variants = set()
+    for chunk in [spanish] + re.split(r"[,;/]", spanish):
+        for candidate in (chunk, re.sub(r"\([^)]*\)", " ", chunk)):
+            normalized = _normalize(candidate)
+            if normalized:
+                variants.add(normalized)
+    return variants
+
+
+def _matches_meaning(answer: str, spanish: str) -> bool:
+    return _normalize(answer) in _meaning_variants(spanish)
 
 
 class FreePracticeRequest(BaseModel):
@@ -388,10 +412,16 @@ def evaluate(payload: EvaluateRequest):
         if not answer:
             raise HTTPException(status_code=400, detail="La respuesta está vacía")
 
-        # --- Opción múltiple: se resuelve sin LLM ---
-        if payload.format == "choice":
+        # --- Opción múltiple y repaso escrito: se resuelven sin LLM ---
+        if payload.format in ("choice", "recall"):
             expected = word.spanish if payload.mode == "meaning" else word.term
-            correct = _normalize(answer) == _normalize(expected)
+            if payload.format == "recall":
+                # Escribió la respuesta: basta con que acierte una de las formas
+                # del significado, sin exigir acentos ni la cadena completa.
+                correct = _matches_meaning(answer, expected)
+            else:
+                # Eligió entre opciones: el texto viene tal cual de la base.
+                correct = _normalize(answer) == _normalize(expected)
 
             if correct:
                 feedback = f"Correcto. «{word.term}» = {word.spanish.rstrip('.')}."
