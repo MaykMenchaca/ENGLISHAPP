@@ -2,10 +2,11 @@ import { useState } from 'react'
 import VoiceChat from './VoiceChat.jsx'
 import PronunciationDrill from './PronunciationDrill.jsx'
 import Phrasebook from './Phrasebook.jsx'
+import Dictation from './Dictation.jsx'
 
 // Antes «Hablar» hacía una sola cosa (conversar) y VoiceChat.jsx ya eran
-// 340+ líneas. Un menú de tres prácticas ordena la zona y deja espacio para
-// pronunciación y frases sin amontonar todo en un solo componente.
+// 340+ líneas. Un menú de prácticas ordena la zona y deja espacio para
+// pronunciación, frases y dictado sin amontonar todo en un solo componente.
 const MODES = [
   {
     id: 'talk',
@@ -18,17 +19,24 @@ const MODES = [
     desc: 'Practica pronunciación: te digo si el reconocedor te entendió, frase por frase.',
   },
   {
+    id: 'dictation',
+    label: 'Escucha y traduce',
+    desc: 'Te digo una frase en inglés y tú escribes qué significa en español.',
+  },
+  {
     id: 'phrasebook',
     label: 'Frases útiles',
     desc: 'Frases comunes para platicar, en inglés y su significado en español.',
   },
 ]
 
-export default function SpeakScreen({ onBack, onConverse }) {
+export default function SpeakScreen({ onBack, onConverse, onTranslateCheck }) {
   const [mode, setMode] = useState(null)
 
   if (mode === 'talk') return <VoiceChat onBack={() => setMode(null)} onConverse={onConverse} />
   if (mode === 'drill') return <PronunciationDrill onBack={() => setMode(null)} />
+  if (mode === 'dictation')
+    return <Dictation onBack={() => setMode(null)} onTranslateCheck={onTranslateCheck} />
   if (mode === 'phrasebook') return <Phrasebook onBack={() => setMode(null)} />
 
   return (

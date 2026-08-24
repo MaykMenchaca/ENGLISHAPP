@@ -2,21 +2,7 @@ import { useRef, useState } from 'react'
 import { speak, speechSupported } from '../speech.js'
 import { listen, listenSupported } from '../listen.js'
 import SpeakButton from './SpeakButton.jsx'
-
-// Frases cortas, útiles para hablar del trabajo y para el TOEFL — estáticas
-// a propósito, no cuestan cuota de IA ni tardan en cargar.
-const SENTENCES = [
-  'Can you tell me more about that?',
-  'I would like to schedule a meeting for next week.',
-  'The production line stopped because of a mechanical failure.',
-  'Could you please repeat the question?',
-  "I've been working as an industrial engineer for three years.",
-  'What time does the shift start tomorrow?',
-  'We need to reduce the defect rate this quarter.',
-  "I'm not sure I understood — could you say it again?",
-  "Let's review the results of the last inspection.",
-  'Thank you for explaining that so clearly.',
-]
+import { SENTENCES } from '../speakingContent.js'
 
 function normalize(text) {
   return text

@@ -147,7 +147,12 @@ def _meaning_variants(spanish: str) -> set:
     barras, y de cada trozo se guarda también la versión sin paréntesis.
     """
     variants = set()
-    for chunk in [spanish] + re.split(r"[,;/]", spanish):
+    # (?![^(]*\)) evita partir DENTRO de un paréntesis: solo corta en una coma/
+    # punto y coma/barra que no tenga un ")" más adelante antes que un "(" —
+    # o sea, que esté fuera de cualquier paréntesis abierto. Sin esto,
+    # "Era, estaba (yo, él, ella)." se partía también por las comas de adentro
+    # del paréntesis y "estaba" nunca quedaba como fragmento limpio.
+    for chunk in [spanish] + re.split(r"[,;/](?![^(]*\))", spanish):
         for candidate in (chunk, re.sub(r"\([^)]*\)", " ", chunk)):
             normalized = _normalize(candidate)
             if normalized:
@@ -596,6 +601,45 @@ def say_it(payload: SayItRequest):
         "english": str(parsed.get("english", "")).strip(),
         "feedback": str(parsed.get("feedback", "")).strip() or "Sin comentarios.",
         "alternative": str(parsed.get("alternative", "")).strip(),
+    }
+
+
+class TranslateCheckRequest(BaseModel):
+    english: str
+    answer: str
+    provider: Optional[str] = Field(default=None, pattern="^(gemini|claude|anthropic|deepseek)$")
+
+
+@router.post("/translate-check")
+def translate_check(payload: TranslateCheckRequest):
+    """Modo dictado de 'Hablar': la IA dice una frase en inglés y el
+    estudiante escribe qué entendió en español. Igual que say_it(), no se
+    liga a una palabra de la base ni se guarda como intento — es práctica
+    libre de comprensión, no evaluación de vocabulario."""
+    english = payload.english.strip()
+    answer = payload.answer.strip()
+    if not answer:
+        raise HTTPException(status_code=400, detail="Escribe tu traducción")
+
+    user_prompt = (
+        f'Oración en inglés: "{english}"\n'
+        f'El estudiante la tradujo así al español: "{answer}"\n\n'
+        "¿Su traducción capta la idea? Acepta paráfrasis, no exijas literalidad. "
+        "Responde con este JSON:\n"
+        '{"correct": true|false, "corrected": "una buena traducción al español", '
+        '"feedback": "explicación breve en español"}'
+    )
+
+    try:
+        raw = call_llm(SYSTEM_PROMPT, user_prompt, provider=payload.provider)
+        parsed = extract_json(raw)
+    except ProviderError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return {
+        "correct": bool(parsed.get("correct", False)),
+        "corrected": str(parsed.get("corrected", "")).strip(),
+        "feedback": str(parsed.get("feedback", "")).strip() or "Sin comentarios.",
     }
 
 

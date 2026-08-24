@@ -96,3 +96,10 @@ export const converse = (messages, provider = null) =>
     method: 'POST',
     body: JSON.stringify({ messages, provider }),
   })
+
+// Modo dictado en Hablar: la IA dice `english`, el estudiante escribe su traducción.
+export const translateCheck = (english, answer, provider = null) =>
+  request('/api/translate-check', {
+    method: 'POST',
+    body: JSON.stringify({ english, answer, provider }),
+  })

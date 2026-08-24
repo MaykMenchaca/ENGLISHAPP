@@ -8,7 +8,16 @@ import { getProgress } from '../api.js'
  * vez y aquí se decide qué actividad hacer con él; MatchGame y FreePractice
  * no cambian, solo cambia quién los abre.
  */
-export default function BlockScreen({ track, week, sectionName, onPractice, onGame, onWrite, onBack }) {
+export default function BlockScreen({
+  track,
+  week,
+  sectionName,
+  onPractice,
+  onGame,
+  onWrite,
+  onChallenge,
+  onBack,
+}) {
   const [stats, setStats] = useState(null) // { count, attempted, accuracy }
   const [error, setError] = useState(null)
 
@@ -87,6 +96,19 @@ export default function BlockScreen({ track, week, sectionName, onPractice, onGa
           <span className="block-activity-desc">
             Redacta un par de frases en inglés usando algunas de estas palabras. La IA
             te corrige en español.
+          </span>
+        </button>
+        <button
+          type="button"
+          className="block-activity"
+          onClick={onChallenge}
+          disabled={!!error || (stats && stats.count < 4)}
+        >
+          <span className="block-activity-title">Modo desafío</span>
+          <span className="block-activity-desc">
+            Repasa las {stats ? stats.count : ''} palabras del bloque completo: primero
+            eligiendo el significado, luego escribiéndolas de memoria, hasta dominarlas
+            todas.
           </span>
         </button>
       </div>

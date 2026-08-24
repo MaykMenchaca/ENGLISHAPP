@@ -10,6 +10,7 @@ import {
   logout as apiLogout,
   sayIt,
   setUnauthorizedHandler,
+  translateCheck,
 } from './api.js'
 import Login from './components/Login.jsx'
 import LessonSelector from './components/LessonSelector.jsx'
@@ -23,21 +24,13 @@ import Settings from './components/Settings.jsx'
 import Stats from './components/Stats.jsx'
 import RutaScreen from './components/RutaScreen.jsx'
 import SpeakScreen from './components/SpeakScreen.jsx'
+import ChallengeMode from './components/ChallengeMode.jsx'
 import { setSoundsEnabled, soundsEnabled } from './sounds.js'
 import { getTheme, setTheme } from './theme.js'
+import { shuffle, buildOptions } from './wordUtils.js'
 
 const WORDS_PER_SESSION = 5
 const MODES = ['meaning', 'completion']
-const OPTIONS_PER_QUESTION = 4
-
-function shuffle(list) {
-  const copy = [...list]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-  }
-  return copy
-}
 
 /** Resume el progreso por sección, para las barras del selector. */
 function aggregateByWeek(items) {
@@ -54,19 +47,6 @@ function aggregateByWeek(items) {
   return byWeek
 }
 
-/** 1 respuesta correcta + 3 distractores tomados de la misma semana. */
-function buildOptions(word, mode, pool) {
-  const field = mode === 'meaning' ? 'spanish' : 'term'
-  const correct = word[field]
-  const distractors = shuffle(
-    pool.filter((w) => w.id !== word.id).map((w) => w[field])
-  )
-    .filter((value, i, arr) => value !== correct && arr.indexOf(value) === i)
-    .slice(0, OPTIONS_PER_QUESTION - 1)
-
-  return shuffle([correct, ...distractors])
-}
-
 export default function App() {
   const [weeks, setWeeks] = useState([])
   const [progress, setProgress] = useState({})
@@ -81,8 +61,9 @@ export default function App() {
   // Antes "Jugar" y "Escribir frases" volvían a preguntar track+bloque en sus
   // propias pantallas; ahora el bloque se elige una sola vez aquí.
   const [selectedBlock, setSelectedBlock] = useState(null)
-  const [activity, setActivity] = useState(null) // null | 'practice' | 'game' | 'write'
+  const [activity, setActivity] = useState(null) // null | 'practice' | 'game' | 'write' | 'challenge'
   const [writeWords, setWriteWords] = useState(null) // palabras para la actividad "write"
+  const [challengeWords, setChallengeWords] = useState(null) // TODAS las palabras del bloque
 
   // Estado de la sesión de práctica (actividad "practice")
   const [session, setSession] = useState(null) // { week, words, pool }
@@ -258,6 +239,11 @@ export default function App() {
     return converse(chatMessages, provider)
   }
 
+  // "Escucha y traduce" — tampoco depende de un bloque, usa su propio banco de frases.
+  function handleTranslateCheck(english, answer) {
+    return translateCheck(english, answer, provider)
+  }
+
   // Entrar a un bloque desde cualquiera de los tres caminos (rejilla,
   // "siguiente recomendado", Ruta): cambia la pestaña activa si hace falta
   // y muestra BlockScreen, sin arrancar nada todavía.
@@ -269,6 +255,7 @@ export default function App() {
     setStep(0)
     setFinished(false)
     setWriteWords(null)
+    setChallengeWords(null)
   }
 
   function handleSelectBlock(week, sectionName) {
@@ -303,6 +290,22 @@ export default function App() {
     }
   }
 
+  // A diferencia de startWeek(), NO recorta a WORDS_PER_SESSION: el desafío
+  // cubre todo el bloque de una sentada.
+  async function handleChallenge() {
+    setLoading(true)
+    setFatalError(null)
+    try {
+      const prog = await getProgress(selectedBlock.week, selectedBlock.track)
+      setChallengeWords(prog.items)
+      setActivity('challenge')
+    } catch (err) {
+      setFatalError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Vuelve a BlockScreen (no a la rejilla entera): dentro de un bloque puede
   // querer probar otra actividad sin tener que volver a buscarlo.
   function backToBlock() {
@@ -311,6 +314,7 @@ export default function App() {
     setStep(0)
     setFinished(false)
     setWriteWords(null)
+    setChallengeWords(null)
     // Refresca las barras de la rejilla con lo que acaba de practicar
     getProgress(null, track)
       .then((prog) => setProgress(aggregateByWeek(prog.items)))
@@ -324,6 +328,7 @@ export default function App() {
     setStep(0)
     setFinished(false)
     setWriteWords(null)
+    setChallengeWords(null)
   }
 
   // Estos dos van ANTES que cualquier otra pantalla: sin sesión no se muestra nada.
@@ -398,7 +403,11 @@ export default function App() {
   if (showVoice) {
     return (
       <main className="shell">
-        <SpeakScreen onBack={() => setShowVoice(false)} onConverse={handleConverse} />
+        <SpeakScreen
+          onBack={() => setShowVoice(false)}
+          onConverse={handleConverse}
+          onTranslateCheck={handleTranslateCheck}
+        />
       </main>
     )
   }
@@ -450,7 +459,22 @@ export default function App() {
           onPractice={handlePractice}
           onGame={handleGame}
           onWrite={handleWrite}
+          onChallenge={handleChallenge}
           onBack={backToSelector}
+        />
+      )}
+
+      {selectedBlock && activity === 'challenge' && challengeWords && (
+        <ChallengeMode
+          words={challengeWords}
+          sectionName={selectedBlock.sectionName}
+          onEvaluateChoice={(wordId, answer) =>
+            evaluate(wordId, 'meaning', answer, 'choice', provider)
+          }
+          onEvaluateRecall={(wordId, answer) =>
+            evaluate(wordId, 'meaning', answer, 'recall', provider)
+          }
+          onExit={backToBlock}
         />
       )}
 

@@ -9,3 +9,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>
 )
+
+// Sin esto Chrome no ofrece "Agregar a inicio": exige un service worker
+// registrado, aunque no cachee nada (ver public/service-worker.js).
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+}
